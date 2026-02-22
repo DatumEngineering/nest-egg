@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import {
   runMonteCarlo, calculateCoastNumber, calculateCoastYear,
   calculateDeterministicCoast, calculateSpendingProjection,
-  buildAllPensions, buildExpensesForLocation, RISK_PRESETS,
+  buildAllPensions, buildExpensesForLocation, buildInvestmentParams,
   getYieldCurve,
 } from '../engine/index.js';
 import { DEFAULT_CATEGORIES } from '../engine/expenses.js';
@@ -29,9 +29,8 @@ export const DEFAULT_INPUTS = {
 
   earners: [{ ...DEFAULT_EARNER }],
 
-  riskPreset: 'moderate',
   investmentParams: {
-    ...RISK_PRESETS.moderate,
+    ...buildInvestmentParams('moderate', 'moderate'),
     kneeYear: null,
   },
 
@@ -237,6 +236,7 @@ export function useSimulation() {
           name: '',
           grossMonthlyRent: 2000,
           mortgagePayment: 1200,
+          taxInsurance: 0,
           maintenancePct: 0.10,
           vacancyRate: 0.05,
           appreciationRate: 0.03,
@@ -289,18 +289,6 @@ export function useSimulation() {
 
   const clearPrimaryResidence = useCallback(() => {
     setInputs(prev => ({ ...prev, primaryResidence: null }));
-  }, []);
-
-  const setRiskPreset = useCallback((preset) => {
-    setInputs(prev => ({
-      ...prev,
-      riskPreset: preset,
-      investmentParams: {
-        ...RISK_PRESETS[preset],
-        kneeYear: prev.investmentParams.kneeYear,
-        strategy: prev.investmentParams.strategy,
-      },
-    }));
   }, []);
 
   // ── Simulation (on demand) ──────────────────────────────────
@@ -374,7 +362,6 @@ export function useSimulation() {
     updatePrimaryResidence,
     clearPrimaryResidence,
     setLocation,
-    setRiskPreset,
     results,
     coastResult,
     coastYearResult,

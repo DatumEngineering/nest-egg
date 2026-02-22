@@ -23,17 +23,21 @@ export default function Results({
   const [showCoastCurve, setShowCoastCurve] = useState(false);
   const [showSpending, setShowSpending] = useState(false);
 
+  const hasDerisking = inputs.investmentParams?.strategy !== 'none';
+
   return (
     <div className="results">
       {/* Unified chart toggle bar */}
       <div className="chart-toggles">
-        <button
-          type="button"
-          className={`toggle-btn${showYieldCurve ? ' active' : ''}`}
-          onClick={() => setShowYieldCurve(!showYieldCurve)}
-        >
-          Glide Path
-        </button>
+        {hasDerisking && (
+          <button
+            type="button"
+            className={`toggle-btn${showYieldCurve ? ' active' : ''}`}
+            onClick={() => setShowYieldCurve(!showYieldCurve)}
+          >
+            Glide Path
+          </button>
+        )}
         <button
           type="button"
           className={`toggle-btn${showCoastCurve ? ' active' : ''}`}
@@ -50,7 +54,7 @@ export default function Results({
         </button>
       </div>
 
-      {showYieldCurve && (
+      {showYieldCurve && hasDerisking && (
         <YieldCurveChart curveData={yieldCurveData} />
       )}
 

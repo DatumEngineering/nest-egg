@@ -1,0 +1,35 @@
+{
+  "source": "Social Security Administration (SSA)",
+  "lastUpdated": "2025",
+  "references": [
+    "https://www.ssa.gov/oact/cola/cbb.html",
+    "https://www.ssa.gov/oact/cola/bendpoints.html",
+    "https://www.ssa.gov/oact/cola/piaformula.html"
+  ],
+  "note": "Used to estimate monthly PIA (Primary Insurance Amount) at Full Retirement Age from current salary. Constant-dollar method matches SSA Quick Calculator.",
+
+  "taxableMaximum": {
+    "description": "Maximum earnings subject to Social Security tax, by year",
+    "2025": 176100,
+    "2026": 184500
+  },
+
+  "bendPoints": {
+    "description": "PIA formula bend points for workers turning 62 in 2025",
+    "year": 2025,
+    "first": 1226,
+    "second": 7391
+  },
+
+  "piaFormula": {
+    "description": "PIA = 90% of AIME up to first bend + 32% between bends + 15% above second bend",
+    "rates": [0.90, 0.32, 0.15]
+  },
+
+  "assumptions": {
+    "careerStartAge": 22,
+    "fullRetirementAge": 67,
+    "topEarningYears": 35,
+    "monthsPerYear": 12
+  }
+}

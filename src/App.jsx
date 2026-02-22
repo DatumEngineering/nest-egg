@@ -23,7 +23,6 @@ function App() {
     updatePrimaryResidence,
     clearPrimaryResidence,
     setLocation,
-    setRiskPreset,
     results,
     coastResult,
     coastYearResult,
@@ -83,7 +82,6 @@ function App() {
             clearPrimaryResidence={clearPrimaryResidence}
             primaryAge={primaryAge}
             setLocation={setLocation}
-            setRiskPreset={setRiskPreset}
             totalPortfolio={totalPortfolio}
             effectiveKneeYear={effectiveKneeYear}
             totalYears={totalYears}

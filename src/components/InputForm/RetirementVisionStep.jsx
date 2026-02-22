@@ -1,8 +1,5 @@
 import blsData from '../../data/blsExpenses.json';
 import NumericInput from './NumericInput.jsx';
-import WindfallEvents from './WindfallEvents.jsx';
-import RentalProperties from './RentalProperties.jsx';
-import PrimaryResidence from './PrimaryResidence.jsx';
 
 const metroOptions = Object.entries(blsData.metros)
   .sort((a, b) => b[1].multiplier - a[1].multiplier);
@@ -12,7 +9,17 @@ const tierOptions = Object.entries(blsData.colMultipliers);
 const fmt = (n) =>
   n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
-export default function VisionStep({ inputs, updateInput, setLocation, addWindfall, updateWindfall, removeWindfall, addProperty, updateProperty, removeProperty, addPrimaryResidence, updatePrimaryResidence, clearPrimaryResidence, primaryAge }) {
+const InfoIcon = ({ title }) => (
+  <span className="info-icon" title={title}>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="16" x2="12" y2="12"/>
+      <line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>
+  </span>
+);
+
+export default function RetirementVisionStep({ inputs, updateInput, setLocation }) {
   const expenses = inputs.expenses;
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
 
@@ -36,7 +43,10 @@ export default function VisionStep({ inputs, updateInput, setLocation, addWindfa
 
   return (
     <fieldset className="step-fieldset">
-      <legend>Step 2: What Does Retirement Look Like?</legend>
+      <legend>
+        Step 2: Retirement Vision
+        <InfoIcon title="Define where you'll live and how much you'll spend in retirement. Expenses are pre-filled from BLS data for 65+ households, adjusted by location." />
+      </legend>
 
       <div className="vision-section">
         <h4>Where do you see yourself in retirement?</h4>
@@ -71,12 +81,7 @@ export default function VisionStep({ inputs, updateInput, setLocation, addWindfa
             {inputs.selectedMetro}
             {inputs.earners.length > 1 && ` / ${inputs.earners.length} people`}
           </span>
-          <span
-            className="info-icon"
-            title="National averages from BLS Consumer Expenditure Survey (2023, 65+ households), adjusted by BEA Regional Price Parities and C2ER Cost of Living Index."
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          </span>
+          <InfoIcon title="National averages from BLS Consumer Expenditure Survey (2023, 65+ households), adjusted by BEA Regional Price Parities and C2ER Cost of Living Index." />
         </summary>
 
         <table className="expense-table">
@@ -112,40 +117,11 @@ export default function VisionStep({ inputs, updateInput, setLocation, addWindfa
         </table>
       </details>
 
-      <div className="vision-section">
-        <h4>Future Cash Events</h4>
-        <WindfallEvents
-          events={inputs.windfallEvents}
-          addWindfall={addWindfall}
-          updateWindfall={updateWindfall}
-          removeWindfall={removeWindfall}
-        />
-      </div>
-
-      <div className="vision-section">
-        <h4>Investment Properties</h4>
-        <RentalProperties
-          properties={inputs.rentalProperties}
-          addProperty={addProperty}
-          updateProperty={updateProperty}
-          removeProperty={removeProperty}
-        />
-      </div>
-
-      <div className="vision-section">
-        <h4>Home Downsizing</h4>
-        <PrimaryResidence
-          primaryResidence={inputs.primaryResidence}
-          addPrimaryResidence={addPrimaryResidence}
-          updatePrimaryResidence={updatePrimaryResidence}
-          clearPrimaryResidence={clearPrimaryResidence}
-          retirementAge={inputs.retirementAge}
-          primaryAge={primaryAge}
-        />
-      </div>
-
       <details>
-        <summary>Advanced: Tax & Inflation</summary>
+        <summary>
+          Advanced: Tax & Inflation
+          <InfoIcon title="Set your effective tax rate and inflation assumptions. Tax rate determines pre-tax income needed. CPI parameters affect expense growth in the simulation." />
+        </summary>
         <div className="form-grid" style={{ marginTop: '0.5rem' }}>
           <label>
             Effective Tax Rate (%)

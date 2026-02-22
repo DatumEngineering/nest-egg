@@ -20,43 +20,65 @@ const DEFAULTS = {
 };
 
 /**
- * Risk presets calibrated to Vanguard index fund data.
+ * Before-retirement presets: growth-phase allocations.
  *
- * Aggressive phase based on VTSAX/VTI (total stock market):
- *   ~10.5% mean return, ~16% standard deviation (30-year)
- *
- * Conservative phase based on VBTLX/BND (total bond market):
- *   ~4.0% mean return, ~5% standard deviation (30-year)
- *
- * See src/data/vanguardDefaults.json for sources.
+ * Conservative: ~60/40 balanced (VBIAX-like), 8.5% / 12%
+ * Moderate: Total stock market (VTSAX/VTI), 10.5% / 16%
+ * Aggressive: Equity-heavy with small/mid tilt, 11.5% / 19%
  */
+export const BEFORE_PRESETS = {
+  conservative: { rate: 0.085, volatility: 0.12, label: 'Conservative — 60/40 balanced (8.5% / 12%)' },
+  moderate:     { rate: 0.105, volatility: 0.16, label: 'Moderate — Total market (10.5% / 16%)' },
+  aggressive:   { rate: 0.115, volatility: 0.19, label: 'Aggressive — Equity-heavy (11.5% / 19%)' },
+};
+
+/**
+ * After-retirement presets: drawdown-phase allocations.
+ *
+ * Conservative: Short-term bonds (3.5% / 4%)
+ * Moderate: Total bond (4% / 5%)
+ * Balanced: Balanced fund (7% / 10%)
+ */
+export const AFTER_PRESETS = {
+  conservative: { rate: 0.035, volatility: 0.04, label: 'Conservative — Short-term bonds (3.5% / 4%)' },
+  moderate:     { rate: 0.04,  volatility: 0.05, label: 'Moderate — Total bond (4% / 5%)' },
+  balanced:     { rate: 0.07,  volatility: 0.10, label: 'Balanced — Balanced fund (7% / 10%)' },
+};
+
+/**
+ * Build investmentParams from before/after preset keys.
+ */
+export function buildInvestmentParams(beforeKey, afterKey, overrides = {}) {
+  const before = BEFORE_PRESETS[beforeKey] || BEFORE_PRESETS.moderate;
+  const after = AFTER_PRESETS[afterKey] || AFTER_PRESETS.moderate;
+  return {
+    highYieldRate: before.rate,
+    highYieldVolatility: before.volatility,
+    conservativeRate: after.rate,
+    conservativeVolatility: after.volatility,
+    steepness: 0.5,
+    strategy: 'lifecycle',
+    df: 5,
+    ...overrides,
+  };
+}
+
+/** @deprecated Use BEFORE_PRESETS + AFTER_PRESETS instead */
 export const RISK_PRESETS = {
   conservative: {
-    highYieldRate: 0.095,
-    highYieldVolatility: 0.16,
-    conservativeRate: 0.04,
-    conservativeVolatility: 0.05,
-    steepness: 0.5,
-    strategy: 'lifecycle',
-    df: 5,
+    highYieldRate: 0.085, highYieldVolatility: 0.12,
+    conservativeRate: 0.035, conservativeVolatility: 0.04,
+    steepness: 0.5, strategy: 'lifecycle', df: 5,
   },
   moderate: {
-    highYieldRate: 0.105,
-    highYieldVolatility: 0.16,
-    conservativeRate: 0.04,
-    conservativeVolatility: 0.05,
-    steepness: 0.5,
-    strategy: 'lifecycle',
-    df: 5,
+    highYieldRate: 0.105, highYieldVolatility: 0.16,
+    conservativeRate: 0.04, conservativeVolatility: 0.05,
+    steepness: 0.5, strategy: 'lifecycle', df: 5,
   },
   aggressive: {
-    highYieldRate: 0.105,
-    highYieldVolatility: 0.16,
-    conservativeRate: 0.04,
-    conservativeVolatility: 0.05,
-    steepness: 0.5,
-    strategy: 'none',
-    df: 5,
+    highYieldRate: 0.115, highYieldVolatility: 0.19,
+    conservativeRate: 0.07, conservativeVolatility: 0.10,
+    steepness: 0.5, strategy: 'none', df: 5,
   },
 };
 
@@ -105,10 +127,8 @@ export function getBlendedParams(year, params = {}) {
     conservativeFraction * p.conservativeRate;
 
   const volatility =
-    Math.sqrt(
-      (aggressiveFraction * p.highYieldVolatility) ** 2 +
-      (conservativeFraction * p.conservativeVolatility) ** 2
-    );
+    aggressiveFraction * p.highYieldVolatility +
+    conservativeFraction * p.conservativeVolatility;
 
   return { mean, volatility };
 }

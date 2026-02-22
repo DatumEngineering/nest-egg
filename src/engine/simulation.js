@@ -33,8 +33,9 @@
  *
  * Rental properties:
  *   Ongoing income streams from investment properties. Rent grows with
- *   inflation, mortgage is fixed. Properties can optionally be sold at
- *   a specified year, depositing appreciated value into portfolio.
+ *   inflation, P&I is fixed until payoff, tax & insurance continues.
+ *   Properties can optionally be sold at a specified year, depositing
+ *   appreciated value into portfolio.
  */
 
 import { getBlendedParams } from './investment.js';
@@ -181,13 +182,14 @@ export function runSimulation(config) {
         continue;
       }
 
-      // Net annual rental income (rent grows with inflation, mortgage is fixed until paid off)
+      // Net annual rental income (rent grows with inflation, P&I is fixed until paid off, tax & ins continues)
       const inflatedRent = prop.grossMonthlyRent * 12 * cumulativeRentInflation;
       const effectiveRent = inflatedRent * (1 - (prop.vacancyRate ?? 0.05));
       const maintenance = inflatedRent * (prop.maintenancePct ?? 0.10);
       const mortgagePaidOff = prop.mortgageEndYears != null && yearIndex >= prop.mortgageEndYears;
-      const mortgage = mortgagePaidOff ? 0 : (prop.mortgagePayment ?? 0) * 12;
-      const netRental = effectiveRent - maintenance - mortgage;
+      const annualPI = mortgagePaidOff ? 0 : (prop.mortgagePayment ?? 0) * 12;
+      const taxInsurance = (prop.taxInsurance ?? 0) * 12;
+      const netRental = effectiveRent - maintenance - annualPI - taxInsurance;
       rentalIncome += netRental;
     }
 
@@ -252,20 +254,11 @@ export function runSimulation(config) {
         0
       );
 
-      // Compute pension income
+      // Compute pension income (inflation draws passed for FERS/SS COLA)
       totalPensionIncome = pensions.reduce((sum, pension) => {
         const earnerAge = pension.earnerCurrentAge + yearIndex;
         if (earnerAge < pension.startAge) return sum;
-
-        let cumInflation = 1;
-        if (pension.inflationAdjusted) {
-          const startYearIndex = pension.startAge - pension.earnerCurrentAge;
-          for (let y = startYearIndex; y < yearIndex; y++) {
-            cumInflation *= 1 + inflationDraws[y];
-          }
-        }
-
-        return sum + getPensionIncome(pension, earnerAge, cumInflation);
+        return sum + getPensionIncome(pension, earnerAge, inflationDraws, 0, yearIndex);
       }, 0);
 
       // Net cash flow: expenses minus income sources

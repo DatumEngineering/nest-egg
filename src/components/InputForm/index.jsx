@@ -1,6 +1,7 @@
 import HouseholdStep from './HouseholdStep.jsx';
-import VisionStep from './VisionStep.jsx';
-import StrategyStep from './StrategyStep.jsx';
+import RetirementVisionStep from './RetirementVisionStep.jsx';
+import AssetsEventsStep from './AssetsEventsStep.jsx';
+import InvestmentStrategyStep from './InvestmentStrategyStep.jsx';
 
 export default function InputForm({
   inputs,
@@ -20,7 +21,6 @@ export default function InputForm({
   updatePrimaryResidence,
   clearPrimaryResidence,
   primaryAge,
-  setRiskPreset,
   totalPortfolio,
   effectiveKneeYear,
   totalYears,
@@ -41,10 +41,13 @@ export default function InputForm({
         removeEarner={removeEarner}
         totalPortfolio={totalPortfolio}
       />
-      <VisionStep
+      <RetirementVisionStep
         inputs={inputs}
         updateInput={updateInput}
         setLocation={setLocation}
+      />
+      <AssetsEventsStep
+        inputs={inputs}
         addWindfall={addWindfall}
         updateWindfall={updateWindfall}
         removeWindfall={removeWindfall}
@@ -56,11 +59,10 @@ export default function InputForm({
         clearPrimaryResidence={clearPrimaryResidence}
         primaryAge={primaryAge}
       />
-      <StrategyStep
+      <InvestmentStrategyStep
         inputs={inputs}
         updateInput={updateInput}
         updateNestedInput={updateNestedInput}
-        setRiskPreset={setRiskPreset}
         effectiveKneeYear={effectiveKneeYear}
         totalYears={totalYears}
       />

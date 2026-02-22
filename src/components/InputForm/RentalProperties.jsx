@@ -6,8 +6,9 @@ const fmt = (n) =>
 function computeNetMonthly(prop) {
   const effectiveRent = prop.grossMonthlyRent * (1 - (prop.vacancyRate ?? 0.05));
   const maintenance = prop.grossMonthlyRent * (prop.maintenancePct ?? 0.10);
-  const mortgage = prop.mortgagePayment ?? 0;
-  return effectiveRent - maintenance - mortgage;
+  const pi = prop.mortgagePayment ?? 0;
+  const taxIns = prop.taxInsurance ?? 0;
+  return effectiveRent - maintenance - pi - taxIns;
 }
 
 export default function RentalProperties({ properties, addProperty, updateProperty, removeProperty }) {
@@ -58,12 +59,22 @@ export default function RentalProperties({ properties, addProperty, updateProper
                 />
               </label>
               <label>
-                Monthly Mortgage
+                Monthly P&I
                 <NumericInput
                   value={prop.mortgagePayment}
                   onChange={(e) => updateProperty(i, 'mortgagePayment', Number(e.target.value))}
                   min={0} step={100}
                 />
+                <span className="hint">Principal & interest (stops at payoff)</span>
+              </label>
+              <label>
+                Monthly Tax & Insurance
+                <NumericInput
+                  value={prop.taxInsurance ?? 0}
+                  onChange={(e) => updateProperty(i, 'taxInsurance', Number(e.target.value))}
+                  min={0} step={50}
+                />
+                <span className="hint">Continues after mortgage payoff</span>
               </label>
               <label>
                 Maintenance (%)
@@ -98,7 +109,7 @@ export default function RentalProperties({ properties, addProperty, updateProper
                 />
               </label>
               <label>
-                Mortgage Ends In (yrs)
+                Mortgage Paid Off In (yrs)
                 <NumericInput
                   value={prop.mortgageEndYears ?? ''}
                   onChange={(e) => {
@@ -140,7 +151,7 @@ export default function RentalProperties({ properties, addProperty, updateProper
               {netMonthly < 0 && <span className="warning"> (negative — costs exceed income)</span>}
               {prop.mortgageEndYears != null && prop.mortgagePayment > 0 && (
                 <span className="hint" style={{ marginLeft: '0.5rem' }}>
-                  Mortgage paid off yr {prop.mortgageEndYears} (+{fmt(prop.mortgagePayment)}/mo)
+                  P&I ends yr {prop.mortgageEndYears} (+{fmt(prop.mortgagePayment)}/mo){prop.taxInsurance > 0 ? '; tax & ins. continues' : ''}
                 </span>
               )}
               {prop.sellInYears != null && (

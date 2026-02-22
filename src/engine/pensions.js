@@ -156,13 +156,49 @@ export function calculateDBPension({
   };
 }
 
+// ── FERS COLA cap ─────────────────────────────────────────────
+//
+// FERS retirees under 62 receive no COLA. At 62+:
+//   CPI ≤ 2%  → full CPI
+//   CPI 2–3%  → 2%
+//   CPI > 3%  → CPI − 1%
+
+function fersCOLA(cpi) {
+  if (cpi <= 0.02) return cpi;
+  if (cpi <= 0.03) return 0.02;
+  return cpi - 0.01;
+}
+
 // ── Pension income at simulation time ────────────────────────
 
-export function getPensionIncome(pension, earnerAge, cumulativeInflation) {
+export function getPensionIncome(pension, earnerAge, inflationDraws, startYearIndex, yearIndex) {
   if (earnerAge < pension.startAge) return 0;
 
+  // FERS COLA: capped adjustment, only after age 62
+  if (pension.colaType === 'fers') {
+    let cumCOLA = 1;
+    const pensionStartYear = pension.startAge - pension.earnerCurrentAge;
+    for (let y = pensionStartYear; y < yearIndex; y++) {
+      if (y < 0 || y >= inflationDraws.length) continue;
+      const pensionAge = pension.earnerCurrentAge + y + 1;
+      // FERS COLA only applies at age 62+
+      if (pensionAge >= 62) {
+        cumCOLA *= 1 + fersCOLA(inflationDraws[y]);
+      }
+    }
+    return pension.annualAmount * cumCOLA;
+  }
+
+  // Full CPI-linked (e.g. Social Security)
   if (pension.inflationAdjusted) {
-    return pension.annualAmount * cumulativeInflation;
+    let cumInflation = 1;
+    const pensionStartYear = pension.startAge - pension.earnerCurrentAge;
+    for (let y = pensionStartYear; y < yearIndex; y++) {
+      if (y >= 0 && y < inflationDraws.length) {
+        cumInflation *= 1 + inflationDraws[y];
+      }
+    }
+    return pension.annualAmount * cumInflation;
   }
 
   // Fixed COLA (e.g. 2% per year after start)
@@ -199,7 +235,8 @@ export function buildEarnerPensions(earner) {
       annualAmount: fers.annualAmount,
       startAge: fers.startAge,
       earnerCurrentAge: earner.currentAge,
-      inflationAdjusted: true,
+      colaType: 'fers',
+      inflationAdjusted: false,
       colaRate: 0,
       isReduced: fers.isReduced,
       reductionPct: fers.reductionPct,

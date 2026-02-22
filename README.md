@@ -1,16 +1,41 @@
-# React + Vite
+# NestEgg
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A client-side Monte Carlo retirement simulator. All calculations run in your browser -- no accounts, no cookies, no tracking.
 
-Currently, two official plugins are available:
+**Live:** [https://datumengineering.github.io/nest-egg/](https://datumengineering.github.io/nest-egg/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **Monte Carlo simulation** (1,000+ runs) with configurable confidence targets
+- **Multi-earner households** with individual ages, salaries, savings rates, and retirement dates
+- **Fat-tailed returns** via Student's t-distribution calibrated to Vanguard Target Date Fund data
+- **Lifecycle derisking** (S-curve glide path) that shifts equity/bond allocation over time
+- **Per-category inflation** using BLS Consumer Expenditure Survey data for 65+ households
+- **Location-adjusted expenses** via BEA Regional Price Parities and C2ER Cost of Living Index
+- **Pension support**: FERS, Social Security, and generic defined-benefit pensions with COLA
+- **Windfall events**: one-time cash inflows with probability, timing uncertainty, growth rates, and tax
+- **Rental properties**: ongoing income with P&I, tax & insurance, vacancy, maintenance, appreciation, and optional sale
+- **Primary residence downsize**: model equity release from selling and buying smaller at retirement
+- **Coast FIRE analysis**: find the age you can stop contributing and still retire on target
+- **Portfolio chart** with percentile bands (p5 through p95) and Y-axis zoom controls
+- **Spending projection** and yield curve visualization
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React + Vite
+- Recharts for data visualization
+- Pure JavaScript simulation engine (no server dependencies)
+- GitHub Pages deployment via GitHub Actions
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Development
+
+```bash
+npm install
+npm run dev        # local dev server
+npm run build      # production build
+npm run preview    # preview production build
+```
+
+## Privacy
+
+Your data never leaves your browser. The entire application runs client-side with zero external API calls, no analytics, and no data persistence beyond your browser session.

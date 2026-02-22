@@ -1,4 +1,5 @@
 import { calculateFERS, calculateDeferredFERS, calculateSocialSecurity } from '../../engine/pensions.js';
+import { estimateMonthlyPIA } from '../../engine/socialSecurity.js';
 import NumericInput from './NumericInput.jsx';
 
 const fmt = (n) =>
@@ -157,7 +158,7 @@ function SSInputs({ earner, updateField }) {
       </div>
       <div className="pension-preview">
         <strong>SS:</strong> {fmt(ssCalc.annualAmount)}/yr starting at age {ssCalc.startAge}
-        {' '}({(ssCalc.adjustmentFactor * 100).toFixed(1)}% of FRA benefit)
+        {' '}({(ssCalc.adjustmentFactor * 100).toFixed(1)}% of FRA benefit, CPI-adjusted)
       </div>
     </div>
   );
@@ -263,7 +264,12 @@ function DBPensionItem({ pension, onUpdate, onRemove }) {
 export default function HouseholdStep({ inputs, updateEarner, addEarner, removeEarner, totalPortfolio }) {
   return (
     <fieldset className="step-fieldset">
-      <legend>Step 1: Who's Planning?</legend>
+      <legend>
+        Step 1: Who's Planning?
+        <span className="info-icon" title="Add each earner in your household. Set their age, salary, savings rate, and any pensions (FERS, Social Security, etc.). Portfolio values are combined for the simulation.">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </span>
+      </legend>
 
       <div className="household-summary">
         Total household portfolio: <strong>{fmt(totalPortfolio)}</strong>
@@ -415,8 +421,13 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
                     checked={!!earner.socialSecurity}
                     onChange={(e) => {
                       if (e.target.checked) {
+                        const estimated = estimateMonthlyPIA(
+                          earner.salary,
+                          earner.currentAge,
+                          earner.wageGrowthRate
+                        );
                         updateField('socialSecurity', {
-                          monthlyBenefitAtFRA: 2500,
+                          monthlyBenefitAtFRA: Math.round(estimated / 100) * 100,
                           claimingAge: 67,
                           fullRetirementAge: 67,
                         });

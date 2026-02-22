@@ -2,47 +2,61 @@
  * Investment portfolio model with configurable derisking strategies.
  *
  * Strategies:
- *   sigmoid  - Smooth S-curve transition (default)
- *   linear   - Straight-line transition over time
+ *   lifecycle  - 20-year linear taper to knee year (matches Vanguard TDF)
+ *   sigmoid    - Smooth S-curve transition
  *   target-date - 100% aggressive until knee year, then 100% conservative
- *   none     - Stays aggressive allocation forever
+ *   none       - Stays aggressive allocation forever
  */
 
 const DEFAULTS = {
-  highYieldRate: 0.10,
-  highYieldVolatility: 0.15,
+  highYieldRate: 0.105,
+  highYieldVolatility: 0.16,
   conservativeRate: 0.04,
-  conservativeVolatility: 0.02,
+  conservativeVolatility: 0.05,
   kneeYear: 20,
   steepness: 0.5,
-  strategy: 'sigmoid',
+  strategy: 'lifecycle',
+  df: 5,
 };
 
-/** Risk presets map a simple label to full parameter sets. */
+/**
+ * Risk presets calibrated to Vanguard index fund data.
+ *
+ * Aggressive phase based on VTSAX/VTI (total stock market):
+ *   ~10.5% mean return, ~16% standard deviation (30-year)
+ *
+ * Conservative phase based on VBTLX/BND (total bond market):
+ *   ~4.0% mean return, ~5% standard deviation (30-year)
+ *
+ * See src/data/vanguardDefaults.json for sources.
+ */
 export const RISK_PRESETS = {
   conservative: {
-    highYieldRate: 0.07,
-    highYieldVolatility: 0.10,
-    conservativeRate: 0.03,
-    conservativeVolatility: 0.015,
+    highYieldRate: 0.095,
+    highYieldVolatility: 0.16,
+    conservativeRate: 0.04,
+    conservativeVolatility: 0.05,
     steepness: 0.5,
-    strategy: 'sigmoid',
+    strategy: 'lifecycle',
+    df: 5,
   },
   moderate: {
-    highYieldRate: 0.10,
-    highYieldVolatility: 0.15,
+    highYieldRate: 0.105,
+    highYieldVolatility: 0.16,
     conservativeRate: 0.04,
-    conservativeVolatility: 0.02,
+    conservativeVolatility: 0.05,
     steepness: 0.5,
-    strategy: 'sigmoid',
+    strategy: 'lifecycle',
+    df: 5,
   },
   aggressive: {
-    highYieldRate: 0.12,
-    highYieldVolatility: 0.18,
-    conservativeRate: 0.05,
-    conservativeVolatility: 0.03,
+    highYieldRate: 0.105,
+    highYieldVolatility: 0.16,
+    conservativeRate: 0.04,
+    conservativeVolatility: 0.05,
     steepness: 0.5,
-    strategy: 'sigmoid',
+    strategy: 'none',
+    df: 5,
   },
 };
 
@@ -52,10 +66,12 @@ export const RISK_PRESETS = {
  */
 export function getAllocationFraction(year, kneeYear, steepness, strategy) {
   switch (strategy) {
-    case 'linear': {
-      // Linear from 0% conservative at year 0 to 100% at 2×kneeYear
-      const span = kneeYear * 2;
-      return Math.max(0, Math.min(1, year / span));
+    case 'lifecycle': {
+      // 20-year linear taper ending at knee year (matches Vanguard TDF glide path)
+      const taperStart = Math.max(0, kneeYear - 20);
+      if (year <= taperStart) return 0;
+      if (year >= kneeYear) return 1;
+      return (year - taperStart) / (kneeYear - taperStart);
     }
     case 'target-date':
       // Sudden shift at knee year

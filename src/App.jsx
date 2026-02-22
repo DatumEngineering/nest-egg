@@ -16,6 +16,12 @@ function App() {
     addWindfall,
     updateWindfall,
     removeWindfall,
+    addProperty,
+    updateProperty,
+    removeProperty,
+    addPrimaryResidence,
+    updatePrimaryResidence,
+    clearPrimaryResidence,
     setLocation,
     setRiskPreset,
     results,
@@ -69,6 +75,13 @@ function App() {
             addWindfall={addWindfall}
             updateWindfall={updateWindfall}
             removeWindfall={removeWindfall}
+            addProperty={addProperty}
+            updateProperty={updateProperty}
+            removeProperty={removeProperty}
+            addPrimaryResidence={addPrimaryResidence}
+            updatePrimaryResidence={updatePrimaryResidence}
+            clearPrimaryResidence={clearPrimaryResidence}
+            primaryAge={primaryAge}
             setLocation={setLocation}
             setRiskPreset={setRiskPreset}
             totalPortfolio={totalPortfolio}

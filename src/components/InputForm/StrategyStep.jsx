@@ -3,8 +3,8 @@ import { getAllocationFraction } from '../../engine/investment.js';
 import NumericInput from './NumericInput.jsx';
 
 const STRATEGY_OPTIONS = [
+  { key: 'lifecycle', label: 'Lifecycle', desc: '20-yr taper' },
   { key: 'sigmoid', label: 'S-Curve', desc: 'Smooth transition' },
-  { key: 'linear', label: 'Linear', desc: 'Straight-line ramp' },
   { key: 'target-date', label: 'Target Date', desc: 'Sudden shift' },
   { key: 'none', label: 'Stay Aggressive', desc: 'No derisking' },
 ];
@@ -47,7 +47,7 @@ export default function StrategyStep({
   totalYears,
 }) {
   const preset = inputs.riskPreset;
-  const strategy = inputs.investmentParams.strategy || 'sigmoid';
+  const strategy = inputs.investmentParams.strategy || 'lifecycle';
   const steepness = inputs.investmentParams.steepness ?? 0.5;
 
   return (
@@ -69,9 +69,9 @@ export default function StrategyStep({
           ))}
         </div>
         <span className="hint">
-          {preset === 'conservative' && 'Lower returns, lower volatility (7% / 10%)'}
-          {preset === 'moderate' && 'Balanced returns and risk (10% / 15%)'}
-          {preset === 'aggressive' && 'Higher returns, higher volatility (12% / 18%)'}
+          {preset === 'conservative' && 'Lifecycle derisking, lower equity return (9.5% / 16%)'}
+          {preset === 'moderate' && 'Lifecycle derisking, market returns (10.5% / 16%)'}
+          {preset === 'aggressive' && 'No derisking, stays equity-heavy (10.5% / 16%)'}
         </span>
       </div>
 
@@ -162,6 +162,17 @@ export default function StrategyStep({
         </div>
 
         <div className="form-grid" style={{ marginTop: '0.75rem' }}>
+          <label>
+            Tail Weight (df)
+            <NumericInput
+              value={inputs.investmentParams.df ?? 5}
+              onChange={(e) => updateNestedInput('investmentParams', 'df', Number(e.target.value))}
+              min={3} max={30} step={1}
+            />
+            <span className="hint">
+              Lower = fatter tails (more crashes/booms). 5 = financial standard, 30 = normal
+            </span>
+          </label>
           <label>
             Simulation Runs
             <NumericInput

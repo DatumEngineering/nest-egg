@@ -29,9 +29,11 @@ export default function AboutPanel({ isOpen, onClose }) {
           <li>Social Security with early/delayed claiming adjustments</li>
           <li>Generic pensions and defined benefit plans</li>
           <li>Per-category inflation modeling (healthcare, housing, etc.)</li>
-          <li>Investment derisking strategies (S-curve, linear, target-date)</li>
+          <li>Investment derisking strategies (lifecycle, S-curve, target-date)</li>
+          <li>Fat-tailed return modeling (Student&apos;s t-distribution)</li>
           <li>Coast FIRE number and coast year calculations</li>
           <li>Windfall events with stochastic timing (inheritance, equity, etc.)</li>
+          <li>Investment property income with appreciation and optional sale</li>
           <li>Cost-of-living adjustment by metro area</li>
         </ul>
 
@@ -65,18 +67,31 @@ export default function AboutPanel({ isOpen, onClose }) {
           </dd>
           <dt>Investment Returns</dt>
           <dd>
-            Default parameters approximate historical US equity/bond blends.
-            Conservative: 7%/10%, Moderate: 10%/15%, Aggressive: 12%/18% (mean/volatility).
+            Default parameters calibrated to{' '}
+            <a href="https://investor.vanguard.com/investment-products/mutual-funds/profile/vtsax" target="_blank" rel="noopener noreferrer">
+              Vanguard Total Stock Market (VTSAX)
+            </a>
+            {' '}and{' '}
+            <a href="https://investor.vanguard.com/investment-products/mutual-funds/profile/vbtlx" target="_blank" rel="noopener noreferrer">
+              Vanguard Total Bond Market (VBTLX)
+            </a>
+            {' '}30-year historical data. Equity: 10.5%/16%, Bond: 4.0%/5% (mean/volatility).
+            Lifecycle derisking follows{' '}
+            <a href="https://investor.vanguard.com/investment-products/mutual-funds/profile/vlxvx" target="_blank" rel="noopener noreferrer">
+              Vanguard Target Retirement
+            </a>
+            {' '}glide path (20-year taper).
           </dd>
         </dl>
 
         <h3>Methodology</h3>
         <p>
           Each simulation run draws correlated market returns and inflation from a
-          bivariate normal distribution using the Cholesky decomposition. Expenses
-          compound with per-category stochastic inflation. The Monte Carlo engine runs
-          1,000 independent paths (configurable) and reports success rate, percentile
-          bands, and Coast FIRE metrics via binary search.
+          bivariate Student&apos;s t-distribution (df=5 default) using Cholesky decomposition,
+          producing fat-tailed returns that better model market crashes and booms.
+          Expenses compound with per-category stochastic inflation. The Monte Carlo
+          engine runs 1,000 independent paths (configurable) and reports success rate,
+          percentile bands, and Coast FIRE metrics via binary search.
         </p>
 
         <p className="about-disclaimer">

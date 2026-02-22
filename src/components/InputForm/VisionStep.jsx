@@ -1,6 +1,8 @@
 import blsData from '../../data/blsExpenses.json';
 import NumericInput from './NumericInput.jsx';
 import WindfallEvents from './WindfallEvents.jsx';
+import RentalProperties from './RentalProperties.jsx';
+import PrimaryResidence from './PrimaryResidence.jsx';
 
 const metroOptions = Object.entries(blsData.metros)
   .sort((a, b) => b[1].multiplier - a[1].multiplier);
@@ -10,7 +12,7 @@ const tierOptions = Object.entries(blsData.colMultipliers);
 const fmt = (n) =>
   n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
-export default function VisionStep({ inputs, updateInput, setLocation, addWindfall, updateWindfall, removeWindfall }) {
+export default function VisionStep({ inputs, updateInput, setLocation, addWindfall, updateWindfall, removeWindfall, addProperty, updateProperty, removeProperty, addPrimaryResidence, updatePrimaryResidence, clearPrimaryResidence, primaryAge }) {
   const expenses = inputs.expenses;
   const total = expenses.reduce((sum, e) => sum + e.amount, 0);
 
@@ -117,6 +119,28 @@ export default function VisionStep({ inputs, updateInput, setLocation, addWindfa
           addWindfall={addWindfall}
           updateWindfall={updateWindfall}
           removeWindfall={removeWindfall}
+        />
+      </div>
+
+      <div className="vision-section">
+        <h4>Investment Properties</h4>
+        <RentalProperties
+          properties={inputs.rentalProperties}
+          addProperty={addProperty}
+          updateProperty={updateProperty}
+          removeProperty={removeProperty}
+        />
+      </div>
+
+      <div className="vision-section">
+        <h4>Home Downsizing</h4>
+        <PrimaryResidence
+          primaryResidence={inputs.primaryResidence}
+          addPrimaryResidence={addPrimaryResidence}
+          updatePrimaryResidence={updatePrimaryResidence}
+          clearPrimaryResidence={clearPrimaryResidence}
+          retirementAge={inputs.retirementAge}
+          primaryAge={primaryAge}
         />
       </div>
 

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ComposedChart,
   Area,
@@ -17,7 +17,16 @@ const fmt = (n) => {
   return `$${n.toFixed(0)}`;
 };
 
+const ZOOM_LEVELS = [
+  { key: 'full', label: 'Full', percentile: 'p95' },
+  { key: 'p90', label: '90th', percentile: 'p90' },
+  { key: 'p75', label: '75th', percentile: 'p75' },
+  { key: 'median', label: 'Median', percentile: 'p50' },
+];
+
 export default function PortfolioChart({ percentileBands, retirementAge }) {
+  const [zoom, setZoom] = useState('full');
+
   if (!percentileBands || percentileBands.length === 0) return null;
 
   // Transform data for stacked area fan chart:
@@ -47,6 +56,16 @@ export default function PortfolioChart({ percentileBands, retirementAge }) {
     [percentileBands]
   );
 
+  const yDomain = useMemo(() => {
+    if (zoom === 'full') return [0, 'auto'];
+    const level = ZOOM_LEVELS.find(l => l.key === zoom);
+    if (!level) return [0, 'auto'];
+    const maxVal = Math.max(...percentileBands.map(d => d[level.percentile] ?? 0));
+    // Add 10% headroom and round up nicely
+    const padded = maxVal * 1.1;
+    return [0, Math.ceil(padded / 100000) * 100000 || padded];
+  }, [zoom, percentileBands]);
+
   const customTooltip = ({ active, payload }) => {
     if (!active || !payload || !payload.length) return null;
     const data = payload[0]?.payload;
@@ -75,7 +94,22 @@ export default function PortfolioChart({ percentileBands, retirementAge }) {
 
   return (
     <div className="chart-container">
-      <h3>Portfolio Value Over Time (Percentile Bands)</h3>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+        <h3 style={{ margin: 0 }}>Portfolio Value Over Time</h3>
+        <div className="zoom-controls">
+          <span className="hint" style={{ marginRight: '0.35rem' }}>Y-axis:</span>
+          {ZOOM_LEVELS.map(level => (
+            <button
+              key={level.key}
+              type="button"
+              className={`zoom-btn ${zoom === level.key ? 'active' : ''}`}
+              onClick={() => setZoom(level.key)}
+            >
+              {level.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <ResponsiveContainer width="100%" height={280}>
         <ComposedChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
@@ -85,6 +119,8 @@ export default function PortfolioChart({ percentileBands, retirementAge }) {
           />
           <YAxis
             tickFormatter={fmt}
+            domain={yDomain}
+            allowDataOverflow={zoom !== 'full'}
             label={{ value: 'Portfolio Value', angle: -90, position: 'insideLeft', offset: 10 }}
           />
           <Tooltip content={customTooltip} />

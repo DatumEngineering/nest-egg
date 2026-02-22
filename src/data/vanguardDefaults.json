@@ -1,0 +1,74 @@
+{
+  "source": "Default investment parameters calibrated to Vanguard index fund historical data",
+  "fetchDate": "2026-02-20",
+  "equityBenchmark": {
+    "fund": "Vanguard Total Stock Market Index (VTSAX / VTI)",
+    "url": "https://investor.vanguard.com/investment-products/mutual-funds/profile/vtsax",
+    "thirtyYearCAGR": 0.102,
+    "arithmeticMeanReturn": 0.105,
+    "annualStdDev": 0.16,
+    "note": "30-year figures as of late 2025. Arithmetic mean used for simulation input."
+  },
+  "bondBenchmark": {
+    "fund": "Vanguard Total Bond Market Index (VBTLX / BND)",
+    "url": "https://investor.vanguard.com/investment-products/mutual-funds/profile/vbtlx",
+    "thirtyYearCAGR": 0.04,
+    "annualStdDev": 0.05,
+    "note": "30-year figures. Recent 10yr (~1.8%) reflects 2022 rate spike; 30yr is more representative."
+  },
+  "glidePath": {
+    "source": "Vanguard Target Retirement Funds",
+    "url": "https://investor.vanguard.com/investment-products/mutual-funds/profile/vlxvx",
+    "model": "through",
+    "milestones": [
+      { "phase": "Early career (age ~25)", "equityPct": 90, "bondPct": 10 },
+      { "phase": "At retirement (age ~65)", "equityPct": 50, "bondPct": 50 },
+      { "phase": "7 years post-retirement", "equityPct": 30, "bondPct": 70 },
+      { "phase": "Income phase (age 72+)", "equityPct": 30, "bondPct": 70 }
+    ],
+    "taperYears": 20,
+    "note": "Vanguard uses a 'through' glide path that continues adjusting 7 years past retirement date. Our 'lifecycle' strategy models the 20-year taper from accumulation to knee year."
+  },
+  "blendedEstimates": {
+    "note": "Blended using equity/bond component returns with zero correlation assumption",
+    "aggressivePhase_90_10": { "expectedReturn": 0.099, "volatility": 0.145 },
+    "atRetirement_50_50": { "expectedReturn": 0.073, "volatility": 0.084 },
+    "incomePhase_30_70": { "expectedReturn": 0.059, "volatility": 0.059 }
+  },
+  "riskPresets": {
+    "conservative": {
+      "description": "Lower equity return assumption (9.5%), lifecycle derisking",
+      "highYieldRate": 0.095,
+      "highYieldVolatility": 0.16,
+      "conservativeRate": 0.04,
+      "conservativeVolatility": 0.05
+    },
+    "moderate": {
+      "description": "Market-rate equity return (10.5%), lifecycle derisking",
+      "highYieldRate": 0.105,
+      "highYieldVolatility": 0.16,
+      "conservativeRate": 0.04,
+      "conservativeVolatility": 0.05
+    },
+    "aggressive": {
+      "description": "Market-rate equity return (10.5%), no derisking",
+      "highYieldRate": 0.105,
+      "highYieldVolatility": 0.16,
+      "conservativeRate": 0.04,
+      "conservativeVolatility": 0.05
+    }
+  },
+  "fatTails": {
+    "distribution": "Student's t",
+    "defaultDf": 5,
+    "rationale": "df=5 produces ~3x more frequent 3-sigma events than Gaussian. Common choice in financial modeling to capture crash/boom clustering. df>=30 approaches normal distribution."
+  },
+  "references": [
+    "https://investor.vanguard.com/investment-products/mutual-funds/profile/vtsax",
+    "https://investor.vanguard.com/investment-products/mutual-funds/profile/vbtlx",
+    "https://investor.vanguard.com/investment-products/mutual-funds/profile/vtinx",
+    "https://workplace.vanguard.com/investment/strategies/tdf-glide-path.html",
+    "https://www.bogleheads.org/wiki/Vanguard_target_retirement_funds",
+    "https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/histretSP.html"
+  ]
+}

@@ -13,6 +13,13 @@ export default function InputForm({
   addWindfall,
   updateWindfall,
   removeWindfall,
+  addProperty,
+  updateProperty,
+  removeProperty,
+  addPrimaryResidence,
+  updatePrimaryResidence,
+  clearPrimaryResidence,
+  primaryAge,
   setRiskPreset,
   totalPortfolio,
   effectiveKneeYear,
@@ -41,6 +48,13 @@ export default function InputForm({
         addWindfall={addWindfall}
         updateWindfall={updateWindfall}
         removeWindfall={removeWindfall}
+        addProperty={addProperty}
+        updateProperty={updateProperty}
+        removeProperty={removeProperty}
+        addPrimaryResidence={addPrimaryResidence}
+        updatePrimaryResidence={updatePrimaryResidence}
+        clearPrimaryResidence={clearPrimaryResidence}
+        primaryAge={primaryAge}
       />
       <StrategyStep
         inputs={inputs}

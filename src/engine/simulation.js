@@ -11,6 +11,8 @@
  *   - Per-category stochastic inflation
  *   - Effective tax rate on retirement withdrawals
  *   - Coast logic (stop contributions at a given age)
+ *   - Student's t-distributed returns (fat tails via df parameter)
+ *   - Rental property income with optional sale
  *
  * IMPORTANT: Expenses are specified in TODAY's dollars. They are
  * compounded by stochastic inflation from year 0 (today) through
@@ -28,6 +30,11 @@
  *   expected arrival year, timing uncertainty (stdDev), probability of
  *   occurring, amount, and tax rate. Each simulation run draws whether
  *   and when the event fires.
+ *
+ * Rental properties:
+ *   Ongoing income streams from investment properties. Rent grows with
+ *   inflation, mortgage is fixed. Properties can optionally be sold at
+ *   a specified year, depositing appreciated value into portfolio.
  */
 
 import { getBlendedParams } from './investment.js';
@@ -54,10 +61,13 @@ export function runSimulation(config) {
     coastAge,
     earnerCoastIndex,
     windfallEvents = [],
+    rentalProperties = [],
+    primaryResidence = null,
   } = config;
 
   const infParams = { ...INFLATION_DEFAULTS, ...inflationParams };
   const rng = config.rngFn || bivariateNormal;
+  const df = investmentParams.df ?? null;
   const meanCPI = infParams.meanInflation;
   const taxMultiplier = effectiveTaxRate > 0 ? 1 / (1 - effectiveTaxRate) : 1;
 
@@ -89,9 +99,19 @@ export function runSimulation(config) {
     return arrivalYear;
   });
 
+  // Track which rental properties have been sold
+  const propertySold = rentalProperties.map(() => false);
+
+  // Primary residence downsize: determine target year
+  let downsizeProcessed = false;
+  const downsizeYear = primaryResidence
+    ? (primaryResidence.downsizeYear ?? (retirementAge - primaryCurrentAge))
+    : -1;
+
   const yearlyData = [];
   const inflationDraws = [];
   const catCumFactors = expenses.map(() => 1);
+  let cumulativeRentInflation = 1;
 
   for (let yearIndex = 0; yearIndex < totalYears; yearIndex++) {
     const primaryAge = primaryCurrentAge + yearIndex;
@@ -105,15 +125,18 @@ export function runSimulation(config) {
       investmentParams
     );
 
+    // Pass df for Student's t distribution (ignored by deterministic rngFn)
     const [marketReturn, baseInflation] = rng(
       returnMean,
       returnVol,
       infParams.meanInflation,
       infParams.inflationVolatility,
-      infParams.returnInflationCorrelation
+      infParams.returnInflationCorrelation,
+      df
     );
 
     inflationDraws.push(baseInflation);
+    cumulativeRentInflation *= 1 + baseInflation;
 
     for (let c = 0; c < expenses.length; c++) {
       const catInflation = getCategoryInflation(
@@ -131,12 +154,62 @@ export function runSimulation(config) {
     for (let wi = 0; wi < windfallArrivalYears.length; wi++) {
       if (windfallArrivalYears[wi] === yearIndex) {
         const event = windfallEvents[wi];
-        const netAmount = event.amount * (1 - (event.taxRate ?? 0));
+        // Grow the amount from today's value to arrival year
+        const grownAmount = event.amount *
+          Math.pow(1 + (event.annualGrowthRate ?? 0), yearIndex);
+        const netAmount = grownAmount * (1 - (event.taxRate ?? 0));
         // In deterministic mode, scale by probability for expected value
         const scaled = isDeterministic ? netAmount * (event.probability ?? 1) : netAmount;
         windfallIncome += scaled;
         portfolio += scaled;
       }
+    }
+
+    // Compute rental property income
+    let rentalIncome = 0;
+    for (let pi = 0; pi < rentalProperties.length; pi++) {
+      if (propertySold[pi]) continue;
+      const prop = rentalProperties[pi];
+
+      // Check if property is sold this year
+      if (prop.sellInYears != null && yearIndex >= prop.sellInYears) {
+        const appreciatedValue = prop.currentValue *
+          Math.pow(1 + (prop.appreciationRate ?? 0.03), yearIndex);
+        const saleProceeds = appreciatedValue * (1 - (prop.sellCostPct ?? 0.06));
+        portfolio += saleProceeds;
+        propertySold[pi] = true;
+        continue;
+      }
+
+      // Net annual rental income (rent grows with inflation, mortgage is fixed until paid off)
+      const inflatedRent = prop.grossMonthlyRent * 12 * cumulativeRentInflation;
+      const effectiveRent = inflatedRent * (1 - (prop.vacancyRate ?? 0.05));
+      const maintenance = inflatedRent * (prop.maintenancePct ?? 0.10);
+      const mortgagePaidOff = prop.mortgageEndYears != null && yearIndex >= prop.mortgageEndYears;
+      const mortgage = mortgagePaidOff ? 0 : (prop.mortgagePayment ?? 0) * 12;
+      const netRental = effectiveRent - maintenance - mortgage;
+      rentalIncome += netRental;
+    }
+
+    // Primary residence downsize: sell current home, buy smaller one
+    if (primaryResidence && !downsizeProcessed && yearIndex >= downsizeYear) {
+      const pr = primaryResidence;
+      const appreciatedCurrent = pr.currentValue *
+        Math.pow(1 + (pr.appreciationRate ?? 0.03), yearIndex);
+      const saleProceeds = appreciatedCurrent * (1 - (pr.saleCostPct ?? 0.06));
+      const appreciatedTarget = (pr.downsizeTargetValue ?? 0) *
+        Math.pow(1 + (pr.appreciationRate ?? 0.03), yearIndex);
+      const newHomeCost = appreciatedTarget * (1 + (pr.purchaseCostPct ?? 0.02));
+      // Linear mortgage paydown: if mortgageYearsLeft is set and elapsed >= that, balance is 0
+      const remaining = pr.remainingMortgage ?? 0;
+      const yearsLeft = pr.mortgageYearsLeft;
+      let mortgageOwed = remaining;
+      if (remaining > 0 && yearsLeft != null) {
+        mortgageOwed = yearIndex >= yearsLeft ? 0 : remaining * (1 - yearIndex / yearsLeft);
+      }
+      const netEquity = saleProceeds - mortgageOwed - newHomeCost;
+      portfolio += netEquity;
+      downsizeProcessed = true;
     }
 
     let totalExpenses = 0;
@@ -197,7 +270,7 @@ export function runSimulation(config) {
 
       // Net cash flow: expenses minus income sources
       const preTaxNeeded = totalExpenses * taxMultiplier;
-      const netNeeded = preTaxNeeded - totalPensionIncome - workingIncome;
+      const netNeeded = preTaxNeeded - totalPensionIncome - workingIncome - rentalIncome;
 
       if (netNeeded > 0) {
         // Need to withdraw from portfolio
@@ -208,7 +281,8 @@ export function runSimulation(config) {
       }
     } else {
       // Pure accumulation phase — all earners working
-      portfolio += totalContribution;
+      // Rental income during accumulation goes to portfolio
+      portfolio += totalContribution + rentalIncome;
     }
 
     yearlyData.push({
@@ -222,6 +296,7 @@ export function runSimulation(config) {
       workingIncome,
       contribution: totalContribution,
       windfallIncome,
+      rentalIncome,
       isRetired: anyRetired,
     });
 

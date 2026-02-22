@@ -52,6 +52,10 @@ export const DEFAULT_INPUTS = {
   effectiveTaxRate: 0,
 
   windfallEvents: [],
+
+  rentalProperties: [],
+
+  primaryResidence: null,
 };
 
 export function useSimulation() {
@@ -204,7 +208,7 @@ export function useSimulation() {
       ...prev,
       windfallEvents: [
         ...prev.windfallEvents,
-        { name: '', amount: 50000, taxRate: 0, yearsFromNow: 10, stdDev: 3, probability: 1.0 },
+        { name: '', amount: 50000, taxRate: 0, annualGrowthRate: 0, yearsFromNow: 10, stdDev: 3, probability: 1.0 },
       ],
     }));
   }, []);
@@ -222,6 +226,69 @@ export function useSimulation() {
       ...prev,
       windfallEvents: prev.windfallEvents.filter((_, i) => i !== index),
     }));
+  }, []);
+
+  const addProperty = useCallback(() => {
+    setInputs(prev => ({
+      ...prev,
+      rentalProperties: [
+        ...prev.rentalProperties,
+        {
+          name: '',
+          grossMonthlyRent: 2000,
+          mortgagePayment: 1200,
+          maintenancePct: 0.10,
+          vacancyRate: 0.05,
+          appreciationRate: 0.03,
+          currentValue: 300000,
+          mortgageEndYears: null,
+          sellInYears: null,
+          sellCostPct: 0.06,
+        },
+      ],
+    }));
+  }, []);
+
+  const updateProperty = useCallback((index, key, value) => {
+    setInputs(prev => {
+      const properties = [...prev.rentalProperties];
+      properties[index] = { ...properties[index], [key]: value };
+      return { ...prev, rentalProperties: properties };
+    });
+  }, []);
+
+  const removeProperty = useCallback((index) => {
+    setInputs(prev => ({
+      ...prev,
+      rentalProperties: prev.rentalProperties.filter((_, i) => i !== index),
+    }));
+  }, []);
+
+  const addPrimaryResidence = useCallback(() => {
+    setInputs(prev => ({
+      ...prev,
+      primaryResidence: {
+        currentValue: 500000,
+        appreciationRate: 0.03,
+        remainingMortgage: 200000,
+        mortgageYearsLeft: null,
+        downsizeTargetValue: 300000,
+        downsizeYear: null,
+        saleCostPct: 0.06,
+        purchaseCostPct: 0.02,
+      },
+    }));
+  }, []);
+
+  const updatePrimaryResidence = useCallback((key, value) => {
+    setInputs(prev => ({
+      ...prev,
+      primaryResidence: { ...prev.primaryResidence, [key]: value },
+    }));
+  }, []);
+
+  const clearPrimaryResidence = useCallback(() => {
+    setInputs(prev => ({ ...prev, primaryResidence: null }));
   }, []);
 
   const setRiskPreset = useCallback((preset) => {
@@ -256,6 +323,8 @@ export function useSimulation() {
           inflationParams: inputs.inflationParams,
           effectiveTaxRate: inputs.effectiveTaxRate,
           windfallEvents: inputs.windfallEvents,
+          rentalProperties: inputs.rentalProperties,
+          primaryResidence: inputs.primaryResidence,
           numRuns: inputs.numRuns,
           confidenceTarget: inputs.confidenceTarget,
         };
@@ -298,6 +367,12 @@ export function useSimulation() {
     addWindfall,
     updateWindfall,
     removeWindfall,
+    addProperty,
+    updateProperty,
+    removeProperty,
+    addPrimaryResidence,
+    updatePrimaryResidence,
+    clearPrimaryResidence,
     setLocation,
     setRiskPreset,
     results,

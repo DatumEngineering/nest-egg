@@ -40,11 +40,19 @@ export default function WindfallEvents({ events, addWindfall, updateWindfall, re
 
           <div className="form-grid">
             <label>
-              Amount (gross)
+              Current Value (gross)
               <NumericInput
                 value={event.amount}
                 onChange={(e) => updateWindfall(i, 'amount', Number(e.target.value))}
                 min={0} step={5000}
+              />
+            </label>
+            <label>
+              Annual Growth (%)
+              <NumericInput
+                value={((event.annualGrowthRate ?? 0) * 100).toFixed(1)}
+                onChange={(e) => updateWindfall(i, 'annualGrowthRate', Number(e.target.value) / 100)}
+                min={-50} max={100} step={1}
               />
             </label>
             <label>
@@ -55,7 +63,9 @@ export default function WindfallEvents({ events, addWindfall, updateWindfall, re
                 min={0} max={50} step={1}
               />
               <span className="hint">
-                Net: {fmt(event.amount * (1 - event.taxRate))}
+                {(event.annualGrowthRate ?? 0) !== 0
+                  ? `Projected net in yr ${event.yearsFromNow}: ${fmt(event.amount * Math.pow(1 + (event.annualGrowthRate ?? 0), event.yearsFromNow) * (1 - event.taxRate))}`
+                  : `Net: ${fmt(event.amount * (1 - event.taxRate))}`}
               </span>
             </label>
             <label>

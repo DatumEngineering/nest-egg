@@ -1,0 +1,7 @@
+/* Minimal global reset - App.css handles the main styles */
+html {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

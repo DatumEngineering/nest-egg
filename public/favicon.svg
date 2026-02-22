@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Nest (curved lines) -->
+  <path d="M8 40 Q32 56 56 40" fill="none" stroke="#8B6914" stroke-width="3" stroke-linecap="round"/>
+  <path d="M5 44 Q32 62 59 44" fill="none" stroke="#8B6914" stroke-width="3" stroke-linecap="round"/>
+  <path d="M3 48 Q32 68 61 48" fill="none" stroke="#8B6914" stroke-width="3" stroke-linecap="round"/>
+  <!-- Egg -->
+  <ellipse cx="32" cy="32" rx="14" ry="18" fill="#f5e6c8" stroke="#d4a85c" stroke-width="2" transform="rotate(-5 32 32)"/>
+  <!-- Subtle shine on egg -->
+  <ellipse cx="27" cy="24" rx="4" ry="7" fill="white" opacity="0.35" transform="rotate(-15 27 24)"/>
+</svg>

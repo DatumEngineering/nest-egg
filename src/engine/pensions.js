@@ -10,7 +10,7 @@ export function calculateFERS({
   currentYearsOfService,
   currentAge,
   retirementAge,
-  wageGrowthRate = 0.02,
+  wageGrowthRate = 0.03,
   mra = 57,
   collectionAge,
 }) {
@@ -225,6 +225,8 @@ export function buildEarnerPensions(earner) {
     } else {
       fers = calculateFERS({
         ...earner.fers,
+        currentSalary: earner.salary,
+        wageGrowthRate: earner.wageGrowthRate ?? 0.02,
         currentAge: earner.currentAge,
         retirementAge: earner.retirementAge,
       });

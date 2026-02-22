@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { BEFORE_PRESETS, AFTER_PRESETS } from '../../engine/investment.js';
 import NumericInput from './NumericInput.jsx';
 
-const InfoIcon = ({ title }) => (
-  <span className="info-icon" title={title}>
+const InfoIcon = ({ tip }) => (
+  <span className="info-icon" data-tip={tip}>
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <circle cx="12" cy="12" r="10"/>
       <line x1="12" y1="16" x2="12" y2="12"/>
@@ -61,8 +61,6 @@ export default function InvestmentStrategyStep({
     const key = e.target.value;
     if (key === 'custom') return;
     const preset = BEFORE_PRESETS[key];
-    updateNestedInput('investmentParams', 'highYieldRate', preset.rate);
-    // Need to also update volatility — use updateInput to batch
     updateInput('investmentParams', {
       ...params,
       highYieldRate: preset.rate,
@@ -85,13 +83,13 @@ export default function InvestmentStrategyStep({
     <fieldset className="step-fieldset">
       <legend>
         Step 4: Investment Strategy
-        <InfoIcon title="Choose how aggressively to invest before and after retirement. The simulation transitions between these allocations using the derisking strategy." />
+        <InfoIcon tip="Choose how aggressively to invest before and after retirement. The simulation transitions between these allocations using the derisking strategy." />
       </legend>
 
       <div className="form-grid risk-dropdowns">
         <label>
           Before Retirement
-          <InfoIcon title="Growth-phase allocation while you're still working and saving. Higher return means higher volatility." />
+          <InfoIcon tip="Growth-phase allocation while you're still working and saving. Higher return means higher volatility." />
           <select value={beforeKey} onChange={handleBeforeChange}>
             {Object.entries(BEFORE_PRESETS).map(([key, preset]) => (
               <option key={key} value={key}>{preset.label}</option>
@@ -104,7 +102,7 @@ export default function InvestmentStrategyStep({
 
         <label>
           In Retirement
-          <InfoIcon title="Drawdown-phase allocation after you stop working. Lower volatility protects against sequence-of-returns risk." />
+          <InfoIcon tip="Drawdown-phase allocation after you stop working. Lower volatility protects against sequence-of-returns risk." />
           <select value={afterKey} onChange={handleAfterChange}>
             {Object.entries(AFTER_PRESETS).map(([key, preset]) => (
               <option key={key} value={key}>{preset.label}</option>
@@ -119,7 +117,7 @@ export default function InvestmentStrategyStep({
       <details>
         <summary>
           Advanced: Returns & Derisking
-          <InfoIcon title="Fine-tune return assumptions and how the portfolio transitions from aggressive to conservative over time." />
+          <InfoIcon tip="Fine-tune return assumptions and how the portfolio transitions from aggressive to conservative over time." />
         </summary>
 
         <div className="form-grid" style={{ marginTop: '0.75rem' }}>
@@ -197,17 +195,6 @@ export default function InvestmentStrategyStep({
               />
             </label>
           )}
-          <label>
-            Tail Weight (df)
-            <NumericInput
-              value={params.df ?? 5}
-              onChange={(e) => updateNestedInput('investmentParams', 'df', Number(e.target.value))}
-              min={3} max={30} step={1}
-            />
-            <span className="hint">
-              Lower = fatter tails (more crashes/booms). 5 = financial standard, 30 = normal
-            </span>
-          </label>
         </div>
       </details>
 
@@ -229,6 +216,17 @@ export default function InvestmentStrategyStep({
               onChange={(e) => updateInput('confidenceTarget', Number(e.target.value) / 100)}
               min={50} max={99} step={5}
             />
+          </label>
+          <label>
+            Tail Weight (df)
+            <NumericInput
+              value={params.df ?? 5}
+              onChange={(e) => updateNestedInput('investmentParams', 'df', Number(e.target.value))}
+              min={3} max={30} step={1}
+            />
+            <span className="hint">
+              Lower = fatter tails (more crashes/booms). 5 = financial standard, 30 = normal
+            </span>
           </label>
         </div>
       </details>

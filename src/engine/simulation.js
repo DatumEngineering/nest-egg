@@ -113,6 +113,8 @@ export function runSimulation(config) {
   const inflationDraws = [];
   const catCumFactors = expenses.map(() => 1);
   let cumulativeRentInflation = 1;
+  // Per-earner cumulative wage growth (stochastic, CPI-linked)
+  const earnerCumWageGrowth = earners.map(() => 1);
 
   for (let yearIndex = 0; yearIndex < totalYears; yearIndex++) {
     const primaryAge = primaryCurrentAge + yearIndex;
@@ -146,6 +148,16 @@ export function runSimulation(config) {
         meanCPI
       );
       catCumFactors[c] *= 1 + catInflation;
+    }
+
+    // Update per-earner cumulative wage growth (stochastic, CPI-linked)
+    for (let ei = 0; ei < earners.length; ei++) {
+      const wageInflation = getCategoryInflation(
+        baseInflation,
+        earners[ei].wageGrowthRate ?? meanCPI,
+        meanCPI
+      );
+      earnerCumWageGrowth[ei] *= 1 + wageInflation;
     }
 
     portfolio += portfolio * marketReturn;
@@ -235,8 +247,7 @@ export function runSimulation(config) {
         }
       }
 
-      const projectedSalary =
-        earner.salary * Math.pow(1 + (earner.wageGrowthRate ?? 0.02), yearIndex);
+      const projectedSalary = earner.salary * earnerCumWageGrowth[ei];
 
       if (anyRetired) {
         // Transitional: full working income available to offset expenses

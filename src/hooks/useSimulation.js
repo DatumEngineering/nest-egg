@@ -15,7 +15,7 @@ export const DEFAULT_EARNER = {
   portfolio: 50000,
   salary: 75000,
   savingsRate: 0.20,
-  wageGrowthRate: 0.02,
+  wageGrowthRate: 0.03,
   fers: null,
   socialSecurity: null,
   genericPensions: [],
@@ -41,7 +41,7 @@ export const DEFAULT_INPUTS = {
   },
 
   numRuns: 1000,
-  confidenceTarget: 0.90,
+  confidenceTarget: 0.83,
 
   colMultiplier: 1.0,
   selectedMetro: 'Average (National Average)',

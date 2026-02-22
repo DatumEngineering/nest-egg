@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import InputForm from './components/InputForm/index.jsx';
 import Results from './components/Results/index.jsx';
 import AboutPanel from './components/AboutPanel.jsx';
 import { useSimulation } from './hooks/useSimulation.js';
 import './App.css';
+
+const NESTEGG_VERSION = 1;
 
 function App() {
   const {
@@ -23,6 +25,7 @@ function App() {
     updatePrimaryResidence,
     clearPrimaryResidence,
     setLocation,
+    setInputs,
     results,
     coastResult,
     coastYearResult,
@@ -41,6 +44,46 @@ function App() {
 
   const totalYears = deathAge - primaryAge;
   const [showAbout, setShowAbout] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleExport = useCallback(() => {
+    const data = {
+      version: NESTEGG_VERSION,
+      exportedAt: new Date().toISOString(),
+      inputs,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `nestegg-${date}.nestegg`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [inputs]);
+
+  const handleImport = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.inputs) {
+          setInputs(data.inputs);
+        } else {
+          // Bare inputs object (no wrapper)
+          setInputs(data);
+        }
+      } catch (err) {
+        console.error('Failed to import file:', err);
+        alert('Could not read .nestegg file. Is it valid JSON?');
+      }
+    };
+    reader.readAsText(file);
+    // Reset so same file can be re-imported
+    e.target.value = '';
+  }, [setInputs]);
 
   return (
     <div className="app">
@@ -50,9 +93,26 @@ function App() {
             <h1>NestEgg</h1>
             <p className="tagline">See how prepared you really are</p>
           </div>
-          <button className="about-link" onClick={() => setShowAbout(true)} type="button">
-            About
-          </button>
+          <div className="header-actions">
+            <button className="header-btn" onClick={handleExport} type="button" title="Export inputs">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Save
+            </button>
+            <button className="header-btn" onClick={() => fileInputRef.current?.click()} type="button" title="Import inputs">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Load
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".nestegg,.json"
+              style={{ display: 'none' }}
+              onChange={handleImport}
+            />
+            <button className="about-link" onClick={() => setShowAbout(true)} type="button">
+              About
+            </button>
+          </div>
         </div>
       </header>
 

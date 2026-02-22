@@ -13,9 +13,16 @@ function FERSInputs({ earner, updateField }) {
 
   const updateFERS = (key, value) => updateField('fers', { ...fers, [key]: value });
 
+  // For active FERS, always use the earner's current salary and wage growth
   const fersCalc = isDeferred
     ? calculateDeferredFERS({ ...fers, currentAge: earner.currentAge })
-    : calculateFERS({ ...fers, currentAge: earner.currentAge, retirementAge: earner.retirementAge });
+    : calculateFERS({
+        ...fers,
+        currentSalary: earner.salary,
+        wageGrowthRate: earner.wageGrowthRate,
+        currentAge: earner.currentAge,
+        retirementAge: earner.retirementAge,
+      });
 
   return (
     <div className="pension-subsection">
@@ -37,9 +44,8 @@ function FERSInputs({ earner, updateField }) {
               } else {
                 updateField('fers', {
                   mode: 'active',
-                  currentSalary: fers.currentSalary || fers.highThree || earner.salary,
+                  currentSalary: earner.salary,
                   currentYearsOfService: fers.currentYearsOfService || fers.yearsOfService || 5,
-                  wageGrowthRate: fers.wageGrowthRate || 0.02,
                   mra: fers.mra || 57,
                 });
               }
@@ -74,20 +80,12 @@ function FERSInputs({ earner, updateField }) {
       ) : (
         <div className="form-grid">
           <label>
-            Current Salary
-            <NumericInput value={fers.currentSalary} onChange={(e) => updateFERS('currentSalary', Number(e.target.value))} step={5000} />
-          </label>
-          <label>
             Years of Service (now)
             <NumericInput value={fers.currentYearsOfService} onChange={(e) => updateFERS('currentYearsOfService', Number(e.target.value))} min={0} />
           </label>
           <label>
             MRA
             <NumericInput value={fers.mra} onChange={(e) => updateFERS('mra', Number(e.target.value))} min={55} max={62} />
-          </label>
-          <label>
-            Wage Growth (%)
-            <NumericInput value={(fers.wageGrowthRate * 100).toFixed(1)} onChange={(e) => updateFERS('wageGrowthRate', Number(e.target.value) / 100)} step={0.5} />
           </label>
           {fersCalc && !fersCalc.immediateEligible && (
             <label>
@@ -266,7 +264,7 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
     <fieldset className="step-fieldset">
       <legend>
         Step 1: Who's Planning?
-        <span className="info-icon" title="Add each earner in your household. Set their age, salary, savings rate, and any pensions (FERS, Social Security, etc.). Portfolio values are combined for the simulation.">
+        <span className="info-icon" data-tip="Add each earner in your household. Set their age, salary, savings rate, and any pensions (FERS, Social Security, etc.). Portfolio values are combined for the simulation.">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         </span>
       </legend>
@@ -385,6 +383,13 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
                     onChange={(e) => updateField('wageGrowthRate', Number(e.target.value) / 100)}
                     step={0.5}
                   />
+                  <span className="hint">
+                    {(() => {
+                      const cpi = inputs.inflationParams?.meanInflation ?? 0.03;
+                      const diff = ((earner.wageGrowthRate - cpi) * 100).toFixed(1);
+                      return `CPI ${diff >= 0 ? '+' : ''}${diff}% real · Moves with simulated CPI`;
+                    })()}
+                  </span>
                 </label>
               </div>
 

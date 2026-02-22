@@ -2,8 +2,8 @@ import WindfallEvents from './WindfallEvents.jsx';
 import RentalProperties from './RentalProperties.jsx';
 import PrimaryResidence from './PrimaryResidence.jsx';
 
-const InfoIcon = ({ title }) => (
-  <span className="info-icon" title={title}>
+const InfoIcon = ({ tip }) => (
+  <span className="info-icon" data-tip={tip}>
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <circle cx="12" cy="12" r="10"/>
       <line x1="12" y1="16" x2="12" y2="12"/>
@@ -29,13 +29,13 @@ export default function AssetsEventsStep({
     <fieldset className="step-fieldset">
       <legend>
         Step 3: Assets & Events
-        <InfoIcon title="Add future cash events (inheritance, home sale), investment properties, and home downsizing plans. These feed into the Monte Carlo simulation." />
+        <InfoIcon tip="Add future cash events (inheritance, home sale), investment properties, and home downsizing plans. These feed into the Monte Carlo simulation." />
       </legend>
 
       <div className="vision-section">
         <h4>
           Future Cash Events
-          <InfoIcon title="One-time cash inflows or outflows at a future date. Examples: inheritance, home sale proceeds, large purchase. Timing can vary using the std. deviation field." />
+          <InfoIcon tip="One-time cash inflows or outflows at a future date. Examples: inheritance, home sale proceeds, large purchase. Timing can vary using the std. deviation field." />
         </h4>
         <WindfallEvents
           events={inputs.windfallEvents}
@@ -48,7 +48,7 @@ export default function AssetsEventsStep({
       <div className="vision-section">
         <h4>
           Investment Properties
-          <InfoIcon title="Rental properties generate monthly income, offset by mortgage P&I, taxes/insurance, maintenance, and vacancy. Net income flows into the simulation each year." />
+          <InfoIcon tip="Rental properties generate monthly income, offset by mortgage P&I, taxes/insurance, maintenance, and vacancy. Net income flows into the simulation each year." />
         </h4>
         <RentalProperties
           properties={inputs.rentalProperties}
@@ -61,7 +61,7 @@ export default function AssetsEventsStep({
       <div className="vision-section">
         <h4>
           Home Downsizing
-          <InfoIcon title="Model selling your primary residence and buying a smaller home. Net equity (after sale costs and new purchase) is added to your portfolio at the specified age." />
+          <InfoIcon tip="Model selling your primary residence and buying a smaller home. Net equity (after sale costs and new purchase) is added to your portfolio at the specified age." />
         </h4>
         <PrimaryResidence
           primaryResidence={inputs.primaryResidence}

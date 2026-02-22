@@ -9,8 +9,8 @@ const tierOptions = Object.entries(blsData.colMultipliers);
 const fmt = (n) =>
   n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
-const InfoIcon = ({ title }) => (
-  <span className="info-icon" title={title}>
+const InfoIcon = ({ tip }) => (
+  <span className="info-icon" data-tip={tip}>
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
       <circle cx="12" cy="12" r="10"/>
       <line x1="12" y1="16" x2="12" y2="12"/>
@@ -45,7 +45,7 @@ export default function RetirementVisionStep({ inputs, updateInput, setLocation 
     <fieldset className="step-fieldset">
       <legend>
         Step 2: Retirement Vision
-        <InfoIcon title="Define where you'll live and how much you'll spend in retirement. Expenses are pre-filled from BLS data for 65+ households, adjusted by location." />
+        <InfoIcon tip="Define where you'll live and how much you'll spend in retirement. Expenses are pre-filled from BLS data for 65+ households, adjusted by location." />
       </legend>
 
       <div className="vision-section">
@@ -81,7 +81,7 @@ export default function RetirementVisionStep({ inputs, updateInput, setLocation 
             {inputs.selectedMetro}
             {inputs.earners.length > 1 && ` / ${inputs.earners.length} people`}
           </span>
-          <InfoIcon title="National averages from BLS Consumer Expenditure Survey (2023, 65+ households), adjusted by BEA Regional Price Parities and C2ER Cost of Living Index." />
+          <InfoIcon tip="National averages from BLS Consumer Expenditure Survey (2023, 65+ households), adjusted by BEA Regional Price Parities and C2ER Cost of Living Index." />
         </summary>
 
         <table className="expense-table">
@@ -120,7 +120,7 @@ export default function RetirementVisionStep({ inputs, updateInput, setLocation 
       <details>
         <summary>
           Advanced: Tax & Inflation
-          <InfoIcon title="Set your effective tax rate and inflation assumptions. Tax rate determines pre-tax income needed. CPI parameters affect expense growth in the simulation." />
+          <InfoIcon tip="Set your effective tax rate and inflation assumptions. Tax rate determines pre-tax income needed. CPI parameters affect expense growth in the simulation." />
         </summary>
         <div className="form-grid" style={{ marginTop: '0.5rem' }}>
           <label>

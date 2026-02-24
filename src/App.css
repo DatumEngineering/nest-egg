@@ -1089,3 +1089,147 @@ summary {
 .suggestion-over-saving {
   color: var(--color-primary);
 }
+
+/* ── Responsive: Tablet (≤768px) ─────────────────────────── */
+
+@media (max-width: 768px) {
+  /* Remove sticky from results panel — wastes half the viewport in single-column layout */
+  .results-panel {
+    position: static;
+  }
+
+  /* Allow header to wrap if needed */
+  .header-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Increase touch targets to ~44px minimum */
+  .header-btn,
+  .about-link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .run-button {
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .toggle-btn,
+  .zoom-btn {
+    min-height: 44px;
+    padding: 0.45rem 0.75rem;
+  }
+
+  .remove-earner-btn,
+  .remove-pension-btn,
+  .remove-windfall-btn,
+  .remove-rental-btn {
+    min-height: 44px;
+    padding: 0.3rem 0.75rem;
+  }
+
+  .add-pension-btn,
+  .add-earner-btn,
+  .add-windfall-btn,
+  .add-rental-btn {
+    min-height: 44px;
+  }
+
+  /* Prevent iOS Safari from auto-zooming on input focus (font-size must be ≥16px) */
+  input[type="text"],
+  input[type="number"],
+  select {
+    font-size: 16px;
+  }
+
+  /* Tooltip overflow prevention — anchor to right edge when near viewport edge */
+  .info-icon:hover::after {
+    max-width: min(280px, calc(100vw - 2rem));
+  }
+}
+
+/* ── Responsive: Phone (≤480px) ─────────────────────────── */
+
+@media (max-width: 480px) {
+  /* Tighten outer padding */
+  .app {
+    padding: 0.4rem;
+  }
+
+  /* Stack header vertically */
+  .header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  .app-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .app-header .tagline {
+    font-size: 0.75rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* Tighten fieldsets */
+  .step-fieldset {
+    padding: 0.5rem 0.6rem;
+  }
+
+  /* Scrollable expense table instead of overflow-clipping */
+  .expense-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .expense-table input[type="text"],
+  .expense-table input[type="number"] {
+    width: 80px;
+    font-size: 16px;
+  }
+
+  .inflation-input {
+    width: 55px !important;
+  }
+
+  /* Chart toggles — smaller text so all fit in one row */
+  .toggle-btn {
+    flex: 1 1 auto;
+    font-size: 0.75rem;
+    padding: 0.45rem 0.4rem;
+    text-align: center;
+  }
+
+  /* Results cards — smaller min so 2 cards fit per row */
+  .results-summary {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .big-number {
+    font-size: 1.5rem;
+  }
+
+  /* Chart containers — reduce padding */
+  .chart-container {
+    padding: 0.5rem;
+  }
+
+  .chart-container h3 {
+    font-size: 0.85rem;
+  }
+
+  /* Privacy banner — smaller */
+  .privacy-banner {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.5rem;
+  }
+}

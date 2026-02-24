@@ -84,6 +84,7 @@ export default function RetirementVisionStep({ inputs, updateInput, setLocation 
           <InfoIcon tip="National averages from BLS Consumer Expenditure Survey (2023, 65+ households), adjusted by BEA Regional Price Parities and C2ER Cost of Living Index." />
         </summary>
 
+        <div className="expense-table-wrapper">
         <table className="expense-table">
           <thead>
             <tr>
@@ -115,6 +116,7 @@ export default function RetirementVisionStep({ inputs, updateInput, setLocation 
             ))}
           </tbody>
         </table>
+        </div>
       </details>
 
       <details>

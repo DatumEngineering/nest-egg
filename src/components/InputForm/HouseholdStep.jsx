@@ -101,6 +101,24 @@ function FERSInputs({ earner, updateField }) {
         </div>
       )}
 
+      {!isDeferred && (
+        <label className="checkbox-label" style={{ marginTop: '0.5rem' }}>
+          <input
+            type="checkbox"
+            checked={!!fers.survivorBenefitElected}
+            onChange={(e) => updateFERS('survivorBenefitElected', e.target.checked)}
+          />
+          Survivor benefit elected
+          <span className="info-icon" data-tip="Reduces your FERS annuity by 10% during your lifetime. After your death, your spouse receives 50% of your full (unreduced) annuity.">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </span>
+        </label>
+      )}
+
       {fersCalc && (() => {
         const yearsToCollection = fersCalc.startAge - earner.currentAge;
         const meanInflation = 0.03;
@@ -109,9 +127,12 @@ function FERSInputs({ earner, updateField }) {
         return (
           <div className="pension-preview">
             <div>
-              <strong>FERS:</strong> {fmt(fersCalc.annualAmount)}/yr starting at age {fersCalc.startAge}
+              <strong>FERS:</strong> {fmt(fers.survivorBenefitElected ? fersCalc.annualAmount * 0.90 : fersCalc.annualAmount)}/yr starting at age {fersCalc.startAge}
               {fersCalc.isReduced && (
                 <span className="warning"> (reduced {(fersCalc.reductionPct * 100).toFixed(0)}%)</span>
+              )}
+              {!isDeferred && fers.survivorBenefitElected && (
+                <span className="hint"> · survivor benefit elected</span>
               )}
             </div>
             <div className="hint" style={{ marginTop: '0.25rem' }}>

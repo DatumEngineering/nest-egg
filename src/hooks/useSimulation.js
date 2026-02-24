@@ -55,6 +55,13 @@ export const DEFAULT_INPUTS = {
   rentalProperties: [],
 
   primaryResidence: null,
+
+  survivorExpenseFraction: 0.75,
+  guardrailsEnabled: false,
+  upperGuardrail: 0.25,
+  lowerGuardrail: 0.25,
+  spendingFloor: 0.85,
+  spendingCeiling: 1.20,
 };
 
 export function useSimulation() {
@@ -315,6 +322,12 @@ export function useSimulation() {
           primaryResidence: inputs.primaryResidence,
           numRuns: inputs.numRuns,
           confidenceTarget: inputs.confidenceTarget,
+          survivorExpenseFraction: inputs.survivorExpenseFraction,
+          guardrailsEnabled: inputs.guardrailsEnabled,
+          upperGuardrail: inputs.upperGuardrail,
+          lowerGuardrail: inputs.lowerGuardrail,
+          spendingFloor: inputs.spendingFloor,
+          spendingCeiling: inputs.spendingCeiling,
         };
 
         const mcResults = runMonteCarlo(config);

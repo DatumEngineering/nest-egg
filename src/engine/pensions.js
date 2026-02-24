@@ -212,7 +212,7 @@ export function getPensionIncome(pension, earnerAge, inflationDraws, startYearIn
 
 // ── Build pensions from earner inputs ────────────────────────
 
-export function buildEarnerPensions(earner) {
+export function buildEarnerPensions(earner, earnerIndex = 0) {
   const pensions = [];
 
   if (earner.fers) {
@@ -231,10 +231,14 @@ export function buildEarnerPensions(earner) {
         retirementAge: earner.retirementAge,
       });
     }
+
+    const survivorElected = earner.fers?.survivorBenefitElected ?? false;
+
     pensions.push({
       type: 'fers',
+      earnerIndex,
       earnerName: earner.name,
-      annualAmount: fers.annualAmount,
+      annualAmount: survivorElected ? fers.annualAmount * 0.90 : fers.annualAmount,
       startAge: fers.startAge,
       earnerCurrentAge: earner.currentAge,
       colaType: 'fers',
@@ -243,12 +247,29 @@ export function buildEarnerPensions(earner) {
       isReduced: fers.isReduced,
       reductionPct: fers.reductionPct,
     });
+
+    // Survivor pension: pays 50% of unreduced annuity to surviving earners after this earner dies
+    if (survivorElected) {
+      pensions.push({
+        type: 'fers_survivor',
+        earnerIndex,
+        isSurvivorPension: true,
+        earnerName: earner.name + ' (Survivor)',
+        annualAmount: fers.annualAmount * 0.50,
+        startAge: fers.startAge,
+        earnerCurrentAge: earner.currentAge,
+        colaType: 'fers',
+        inflationAdjusted: false,
+        colaRate: 0,
+      });
+    }
   }
 
   if (earner.socialSecurity) {
     const ss = calculateSocialSecurity(earner.socialSecurity);
     pensions.push({
       type: 'socialSecurity',
+      earnerIndex,
       earnerName: earner.name,
       annualAmount: ss.annualAmount,
       startAge: ss.startAge,
@@ -265,6 +286,7 @@ export function buildEarnerPensions(earner) {
       const calc = calculateGenericPension(gp);
       pensions.push({
         type: 'generic',
+        earnerIndex,
         earnerName: earner.name,
         annualAmount: calc.annualAmount,
         startAge: calc.startAge,
@@ -281,6 +303,7 @@ export function buildEarnerPensions(earner) {
       const calc = calculateDBPension(db);
       pensions.push({
         type: 'db',
+        earnerIndex,
         earnerName: earner.name,
         annualAmount: calc.annualAmount,
         startAge: calc.startAge,
@@ -297,8 +320,8 @@ export function buildEarnerPensions(earner) {
 export function buildAllPensions(earners, otherPensions = []) {
   const pensions = [];
 
-  for (const earner of earners) {
-    pensions.push(...buildEarnerPensions(earner));
+  for (let i = 0; i < earners.length; i++) {
+    pensions.push(...buildEarnerPensions(earners[i], i));
   }
 
   for (const p of otherPensions) {

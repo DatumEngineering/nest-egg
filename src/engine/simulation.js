@@ -64,6 +64,12 @@ export function runSimulation(config) {
     windfallEvents = [],
     rentalProperties = [],
     primaryResidence = null,
+    guardrailsEnabled = false,
+    upperGuardrail = 0.25,
+    lowerGuardrail = 0.25,
+    spendingFloor = 0.85,
+    spendingCeiling = 1.20,
+    survivorExpenseFraction = 0.75,
   } = config;
 
   const infParams = { ...INFLATION_DEFAULTS, ...inflationParams };
@@ -115,8 +121,20 @@ export function runSimulation(config) {
   let cumulativeRentInflation = 1;
   // Per-earner cumulative wage growth (stochastic, CPI-linked)
   const earnerCumWageGrowth = earners.map(() => 1);
+  // Guardrails state
+  let spendingMultiplier = 1.0;
+  let initialWithdrawalRate = null;
+  // Survivor mortality tracking
+  const earnerDeceased = earners.map(() => false);
 
   for (let yearIndex = 0; yearIndex < totalYears; yearIndex++) {
+    // Update earner mortality
+    for (let ei = 0; ei < earners.length; ei++) {
+      earnerDeceased[ei] = (earners[ei].currentAge + yearIndex) > (earners[ei].deathAge ?? 95);
+    }
+    const anyDeceased = earnerDeceased.some(Boolean);
+    const numAlive = earnerDeceased.filter(v => !v).length;
+
     const primaryAge = primaryCurrentAge + yearIndex;
 
     // Determine retirement state
@@ -259,28 +277,77 @@ export function runSimulation(config) {
     }
 
     if (anyRetired) {
-      // Compute inflation-adjusted expenses
-      totalExpenses = expenses.reduce(
+      // Base inflation-adjusted expenses
+      const baseExpenses = expenses.reduce(
         (sum, cat, i) => sum + cat.amount * catCumFactors[i],
         0
       );
 
-      // Compute pension income (inflation draws passed for FERS/SS COLA)
-      totalPensionIncome = pensions.reduce((sum, pension) => {
-        const earnerAge = pension.earnerCurrentAge + yearIndex;
-        if (earnerAge < pension.startAge) return sum;
-        return sum + getPensionIncome(pension, earnerAge, inflationDraws, 0, yearIndex);
-      }, 0);
+      // SS survivor: if any SS earner is deceased, survivor gets max, not sum
+      const ssByEarner = pensions
+        .filter(p => p.type === 'socialSecurity')
+        .map(p => {
+          const age = p.earnerCurrentAge + yearIndex;
+          return age < p.startAge ? 0 : getPensionIncome(p, age, inflationDraws, 0, yearIndex);
+        });
+      let totalSSIncome;
+      if (earners.length > 1 && anyDeceased && ssByEarner.length > 0) {
+        totalSSIncome = Math.max(...ssByEarner);
+      } else {
+        totalSSIncome = ssByEarner.reduce((s, v) => s + v, 0);
+      }
+
+      // Non-SS pensions: regular pensions only pay while earner is alive;
+      // survivor pensions only pay after the referenced earner has died
+      let totalNonSSPensionIncome = 0;
+      for (const pension of pensions) {
+        if (pension.type === 'socialSecurity') continue;
+        const age = pension.earnerCurrentAge + yearIndex;
+        if (age < pension.startAge) continue;
+        const deceased = earnerDeceased[pension.earnerIndex ?? 0];
+        if (pension.isSurvivorPension) {
+          if (deceased && numAlive > 0) {
+            totalNonSSPensionIncome += getPensionIncome(pension, age, inflationDraws, 0, yearIndex);
+          }
+        } else if (!deceased) {
+          totalNonSSPensionIncome += getPensionIncome(pension, age, inflationDraws, 0, yearIndex);
+        }
+      }
+      totalPensionIncome = totalSSIncome + totalNonSSPensionIncome;
+
+      // Guardrails: only during full retirement, only when enabled
+      if (guardrailsEnabled && allRetired) {
+        const netBase = baseExpenses * taxMultiplier - totalPensionIncome - workingIncome - rentalIncome;
+        if (netBase > 0 && portfolio > 0) {
+          if (initialWithdrawalRate === null) {
+            initialWithdrawalRate = netBase / portfolio;
+          } else {
+            const currentRate = (baseExpenses * spendingMultiplier * taxMultiplier
+              - totalPensionIncome - workingIncome - rentalIncome) / portfolio;
+            if (currentRate > initialWithdrawalRate * (1 + upperGuardrail)) {
+              spendingMultiplier = Math.max(spendingFloor, spendingMultiplier * 0.90);
+            } else if (currentRate < initialWithdrawalRate * (1 - lowerGuardrail)) {
+              spendingMultiplier = Math.min(spendingCeiling, spendingMultiplier * 1.10);
+            }
+          }
+        }
+      }
+
+      // Apply guardrails multiplier
+      totalExpenses = baseExpenses * spendingMultiplier;
+
+      // Survivor expense reduction: only when fully retired and one earner has died
+      if (allRetired && anyDeceased && earners.length > 1) {
+        totalExpenses *= survivorExpenseFraction;
+      }
 
       // Net cash flow: expenses minus income sources
       const preTaxNeeded = totalExpenses * taxMultiplier;
       const netNeeded = preTaxNeeded - totalPensionIncome - workingIncome - rentalIncome;
 
       if (netNeeded > 0) {
-        // Need to withdraw from portfolio
         portfolio -= netNeeded;
       } else {
-        // Excess income goes to portfolio as savings
         portfolio += (-netNeeded);
       }
     } else {
@@ -302,6 +369,7 @@ export function runSimulation(config) {
       windfallIncome,
       rentalIncome,
       isRetired: anyRetired,
+      spendingMultiplier,
     });
 
     if (portfolio <= 0 && anyRetired) {

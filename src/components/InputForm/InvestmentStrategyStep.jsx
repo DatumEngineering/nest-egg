@@ -228,6 +228,66 @@ export default function InvestmentStrategyStep({
               Lower = fatter tails (more crashes/booms). 5 = financial standard, 30 = normal
             </span>
           </label>
+          <label style={{ gridColumn: '1 / -1' }}>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={!!inputs.guardrailsEnabled}
+                onChange={(e) => updateInput('guardrailsEnabled', e.target.checked)}
+              />
+              Spending Guardrails (Guyton-Klinger)
+            </label>
+            <span className="hint">Adjusts spending ±10% when withdrawal rate drifts beyond thresholds. Models realistic spending flexibility.</span>
+          </label>
+          {inputs.guardrailsEnabled && (<>
+            <label>
+              Upper Guardrail (%)
+              <NumericInput
+                value={((inputs.upperGuardrail ?? 0.25) * 100).toFixed(0)}
+                onChange={(e) => updateInput('upperGuardrail', Number(e.target.value) / 100)}
+                min={5} max={50} step={5}
+              />
+              <span className="hint">Cut spending 10% if withdrawal rate rises this far above initial</span>
+            </label>
+            <label>
+              Lower Guardrail (%)
+              <NumericInput
+                value={((inputs.lowerGuardrail ?? 0.25) * 100).toFixed(0)}
+                onChange={(e) => updateInput('lowerGuardrail', Number(e.target.value) / 100)}
+                min={5} max={50} step={5}
+              />
+              <span className="hint">Raise spending 10% if withdrawal rate drops this far below initial</span>
+            </label>
+            <label>
+              Spending Floor (%)
+              <NumericInput
+                value={((inputs.spendingFloor ?? 0.85) * 100).toFixed(0)}
+                onChange={(e) => updateInput('spendingFloor', Number(e.target.value) / 100)}
+                min={50} max={100} step={5}
+              />
+              <span className="hint">Never spend less than this % of original plan</span>
+            </label>
+            <label>
+              Spending Ceiling (%)
+              <NumericInput
+                value={((inputs.spendingCeiling ?? 1.20) * 100).toFixed(0)}
+                onChange={(e) => updateInput('spendingCeiling', Number(e.target.value) / 100)}
+                min={100} max={200} step={5}
+              />
+              <span className="hint">Never spend more than this % of original plan</span>
+            </label>
+          </>)}
+          <label style={{ gridColumn: '1 / -1' }}>
+            Survivor Expense Fraction (%)
+            <NumericInput
+              value={((inputs.survivorExpenseFraction ?? 0.75) * 100).toFixed(0)}
+              onChange={(e) => updateInput('survivorExpenseFraction', Number(e.target.value) / 100)}
+              min={50} max={100} step={5}
+            />
+            <span className="hint">
+              When one partner dies (and both are retired), expenses drop to this % of the couple total. Only affects multi-earner plans. Default 75%.
+            </span>
+          </label>
         </div>
       </details>
     </fieldset>

@@ -70,6 +70,9 @@ export function runSimulation(config) {
     spendingFloor = 0.85,
     spendingCeiling = 1.20,
     survivorExpenseFraction = 0.75,
+    stressShockEnabled = false,
+    stressShockYear = 15,
+    stressShockMagnitude = -0.30,
   } = config;
 
   const infParams = { ...INFLATION_DEFAULTS, ...inflationParams };
@@ -178,7 +181,10 @@ export function runSimulation(config) {
       earnerCumWageGrowth[ei] *= 1 + wageInflation;
     }
 
-    portfolio += portfolio * marketReturn;
+    const effectiveReturn = (stressShockEnabled && yearIndex === stressShockYear)
+      ? stressShockMagnitude
+      : marketReturn;
+    portfolio += portfolio * effectiveReturn;
 
     // Deposit any windfall events arriving this year
     let windfallIncome = 0;

@@ -288,6 +288,38 @@ export default function InvestmentStrategyStep({
               When one partner dies (and both are retired), expenses drop to this % of the couple total. Only affects multi-earner plans. Default 75%.
             </span>
           </label>
+          <label style={{ gridColumn: '1 / -1' }}>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={!!inputs.stressShockEnabled}
+                onChange={(e) => updateInput('stressShockEnabled', e.target.checked)}
+              />
+              Market Stress Shock
+              <InfoIcon tip="Force a single-year crash at a specific year to stress-test sequence-of-returns risk. All 1000 simulation runs will experience the crash in that year." />
+            </label>
+            <span className="hint">Pin a crash to one year across all runs — useful for testing worst-case timing scenarios.</span>
+          </label>
+          {inputs.stressShockEnabled && (<>
+            <label>
+              Shock Year (from now)
+              <NumericInput
+                value={inputs.stressShockYear ?? 15}
+                onChange={(e) => updateInput('stressShockYear', Number(e.target.value))}
+                min={0} max={totalYears - 1} step={1}
+              />
+              <span className="hint">0 = this year, 15 = 15 years from now</span>
+            </label>
+            <label>
+              Crash Magnitude (%)
+              <NumericInput
+                value={((inputs.stressShockMagnitude ?? -0.30) * 100).toFixed(0)}
+                onChange={(e) => updateInput('stressShockMagnitude', Number(e.target.value) / 100)}
+                min={-80} max={-5} step={5}
+              />
+              <span className="hint">Portfolio loss that year. −30% is a typical bear market; −50% is 2008-level.</span>
+            </label>
+          </>)}
         </div>
       </details>
     </fieldset>

@@ -62,6 +62,10 @@ export const DEFAULT_INPUTS = {
   lowerGuardrail: 0.25,
   spendingFloor: 0.85,
   spendingCeiling: 1.20,
+
+  stressShockEnabled: false,
+  stressShockYear: 15,
+  stressShockMagnitude: -0.30,
 };
 
 export function useSimulation() {
@@ -328,6 +332,9 @@ export function useSimulation() {
           lowerGuardrail: inputs.lowerGuardrail,
           spendingFloor: inputs.spendingFloor,
           spendingCeiling: inputs.spendingCeiling,
+          stressShockEnabled: inputs.stressShockEnabled,
+          stressShockYear: inputs.stressShockYear,
+          stressShockMagnitude: inputs.stressShockMagnitude,
         };
 
         const mcResults = runMonteCarlo(config);

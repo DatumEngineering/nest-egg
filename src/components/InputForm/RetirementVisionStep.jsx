@@ -18,27 +18,33 @@ function SpendingPromptHelper({ inputs }) {
   const [copied, setCopied] = useState(false);
 
   const numPeople = inputs.earners?.length ?? 1;
-  const primaryAge = inputs.earners?.[0]?.currentAge ?? 30;
-  const retirementYear = new Date().getFullYear() + (inputs.retirementAge - primaryAge);
+  const currentYear = new Date().getFullYear();
   const location = inputs.selectedMetro ?? 'your area';
+  const hasFEHB = inputs.earners?.some(e => e.fers != null) ?? false;
 
-  const prompt = `Help me estimate annual retirement expenses for a ${numPeople}-person household planning to retire around ${retirementYear} in the ${location} area.
+  const healthcareLine = hasFEHB
+    ? `Healthcare coverage: Federal employee FEHB (kept in retirement at active-employee premium rates). Use current FEHB plan rates — a high-deductible plan like GEHA HDHP runs roughly $150–$200/month for self+spouse; Blue Cross Standard Option runs $550–$650/month for self+spouse. Include dental/vision separately (FEDVIP, ~$50–$80/month). Do NOT use Medicare or marketplace estimates.`
+    : `Healthcare coverage: [FEHB / employer retiree coverage / Medicare + supplement / marketplace — fill in before sending]`;
 
-We will be: [renting / owning a paid-off home / undecided]
-Healthcare coverage: [federal employee FEHB / employer coverage / Medicare only / other]
+  const prompt = `Help me estimate annual retirement expenses for a ${numPeople}-person household retiring in the ${location} area.
 
-Please give me realistic annual estimates in today's dollars for each category:
-• Housing (rent or mortgage, utilities, insurance, maintenance)
+Give all estimates in ${currentYear} dollars (today's purchasing power). Do NOT adjust for inflation or project future costs — I handle inflation separately in my model.
+
+Housing situation: [renting / owning a paid-off home / undecided — fill in before sending]
+${healthcareLine}
+
+Please give me realistic annual estimates in ${currentYear} dollars for each category:
+• Housing (rent or HOA/maintenance/insurance, utilities)
 • Food (groceries and dining out)
-• Transportation (insurance, gas, maintenance, registration)
-• Healthcare (premiums, copays, dental, vision, long-term care)
+• Transportation (insurance, fuel, maintenance, registration — assume no car payment)
+• Healthcare (all-in: premiums, copays, dental, vision, long-term care)
 • Travel & vacations
 • Entertainment & hobbies
 • Clothing & personal care
 • Subscriptions & technology
 • Other / miscellaneous
 
-For each category, give me a low / middle / high estimate and briefly note your assumptions. I'll use these numbers to build a 30+ year retirement projection.`;
+For each category, give me a low / middle / high estimate and briefly explain your assumptions. I'll enter these numbers into a 30+ year Monte Carlo retirement projection.`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(prompt).then(() => {
@@ -155,7 +161,7 @@ export default function RetirementVisionStep({ inputs, updateInput, setLocation 
         </table>
         </div>
         <p className="hint" style={{ marginTop: '0.4rem' }}>
-          All expenses grow with CPI. Health insurance and out-of-pocket medical are modeled at 2× CPI to reflect higher healthcare cost inflation.
+          All expenses grow with CPI. Healthcare is modeled at 2× CPI to reflect higher medical cost inflation.
         </p>
       </details>
 

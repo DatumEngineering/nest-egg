@@ -32,6 +32,7 @@ export const DEFAULT_INPUTS = {
   investmentParams: {
     ...buildInvestmentParams('moderate', 'moderate'),
     kneeYear: null,
+    deriskYears: 20,
   },
 
   inflationParams: {
@@ -84,7 +85,7 @@ export function useSimulation() {
   const totalYears = deathAge - primaryAge;
 
   const effectiveKneeYear = useMemo(
-    () => inputs.investmentParams.kneeYear ?? Math.max(1, inputs.retirementAge - primaryAge - 10),
+    () => inputs.investmentParams.kneeYear ?? Math.max(1, inputs.retirementAge - primaryAge),
     [inputs.investmentParams.kneeYear, inputs.retirementAge, primaryAge]
   );
 

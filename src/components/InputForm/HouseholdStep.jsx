@@ -109,13 +109,7 @@ function FERSInputs({ earner, updateField }) {
             onChange={(e) => updateFERS('survivorBenefitElected', e.target.checked)}
           />
           Survivor benefit elected
-          <span className="info-icon" data-tip="Reduces your FERS annuity by 10% during your lifetime. After your death, your spouse receives 50% of your full (unreduced) annuity.">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-          </span>
+          <span className="info-icon" data-tip="Reduces your FERS annuity by 10% during your lifetime. After your death, your spouse receives 50% of your full (unreduced) annuity.">ⓘ</span>
         </label>
       )}
 
@@ -285,9 +279,7 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
     <fieldset className="step-fieldset">
       <legend>
         Step 1: Who's Planning?
-        <span className="info-icon" data-tip="Add each earner in your household. Set their age, salary, savings rate, and any pensions (FERS, Social Security, etc.). Portfolio values are combined for the simulation.">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        </span>
+        <span className="info-icon" data-tip="Add each earner in your household. Set their age, salary, savings rate, and any pensions (FERS, Social Security, etc.). Portfolio values are combined for the simulation.">ⓘ</span>
       </legend>
 
       <div className="household-summary">

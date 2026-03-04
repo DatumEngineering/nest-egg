@@ -83,8 +83,8 @@ Central state management. Key features:
 - `BEFORE_PRESETS`: conservative (8.5%/12%), moderate (10.5%/16%), aggressive (11.5%/19%)
 - `AFTER_PRESETS`: conservative (3.5%/4%), moderate (4%/5%), balanced (7%/10%)
 - Custom detection: compare current params against presets, show "(Custom)" on mismatch
-- Four derisking strategies: `lifecycle` (default), `sigmoid`, `target-date`, `none`
-- Knee year auto-computed: `retirementAge - currentAge - 10`
+- Derisking: configurable linear taper via `deriskYears` (default 20). `deriskYears=0` stays aggressive. Legacy strategy values (`sigmoid`, `target-date`, `none`) still handled for file compatibility.
+- Knee year auto-computed: `retirementAge - currentAge` (full conservative AT retirement)
 - Student's t-distributed returns via `df` parameter (default 5)
 
 ### Wage Growth
@@ -115,17 +115,24 @@ Central state management. Key features:
 8. Primary residence: downsize at specified year, net equity to portfolio
 9. Portfolio hits 0 → simulation fails at that age
 
+### Simulation Features (Advanced)
+- **Spending Guardrails** (Guyton-Klinger): `guardrailsEnabled`, `upperGuardrail`, `lowerGuardrail`, `spendingFloor`, `spendingCeiling`. Tracks `initialWithdrawalRate` at first full-retirement year; adjusts `spendingMultiplier` ±10% when withdrawal rate drifts. Off by default.
+- **Survivor Modeling**: `earnerDeceased[]` array per year; SS becomes max-not-sum when earner dies; non-SS pensions stop for deceased earner; `isSurvivorPension` flag (FERS survivor benefit) activates on death; expenses reduce to `survivorExpenseFraction` (default 75%) when fully retired + one deceased.
+- **Stress Shock**: `stressShockEnabled`, `stressShockYear`, `stressShockMagnitude`. Replaces market return with a fixed crash in a single year across all runs. Off by default.
+- All pension objects carry `earnerIndex` to link them to their earner for survivor checks.
+
 ### UI Patterns
 - Info icons use CSS `::after` pseudo-element tooltips with `data-tip` attribute (not native `title`)
-- All `InfoIcon` components take a `tip` prop
+- `InfoIcon` renders as `ⓘ` text character (no SVG)
 - Header has Save/Load buttons for `.nestegg` file export/import
+- Spending prompt helper in Step 2: collapsible section with pre-populated AI prompt template and copy button
 
 ## Defaults
 - Earner: age 30, portfolio $50K, income $75K, savings 20%, wage growth 3%
 - Retirement: age 65, death age 95
 - Before retirement: moderate (10.5% return, 16% vol)
 - After retirement: moderate (4% return, 5% vol)
-- Strategy: lifecycle derisking, df=5
-- Tax: 0%
-- Location: National Average (1.0x COL)
+- Derisking: `deriskYears=20`, knee year auto = retirement year, df=5
+- Tax: 0%, Location: National Average (1.0x COL)
 - MC: 1000 runs, 83% confidence target
+- Guardrails: off, stress shock: off, survivor fraction: 75%

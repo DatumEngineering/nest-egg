@@ -1,11 +1,8 @@
 /**
- * Investment portfolio model with configurable derisking strategies.
+ * Investment portfolio model with configurable derisking.
  *
- * Strategies:
- *   lifecycle  - 20-year linear taper to knee year (matches Vanguard TDF)
- *   sigmoid    - Smooth S-curve transition
- *   target-date - 100% aggressive until knee year, then 100% conservative
- *   none       - Stays aggressive allocation forever
+ * Derisking: linear taper over `deriskYears` ending at `kneeYear`.
+ * Setting deriskYears=0 keeps aggressive allocation through retirement.
  */
 
 const DEFAULTS = {
@@ -14,6 +11,7 @@ const DEFAULTS = {
   conservativeRate: 0.04,
   conservativeVolatility: 0.05,
   kneeYear: 20,
+  deriskYears: 20,
   steepness: 0.5,
   strategy: 'lifecycle',
   df: 5,
@@ -85,26 +83,23 @@ export const RISK_PRESETS = {
 /**
  * Compute the conservative allocation fraction for a given year.
  * Returns 0 = fully aggressive, 1 = fully conservative.
+ *
+ * Primary mode: linear taper over `deriskYears` ending at `kneeYear`.
+ * Legacy strategy values in saved files are still handled for compatibility.
  */
-export function getAllocationFraction(year, kneeYear, steepness, strategy) {
-  switch (strategy) {
-    case 'lifecycle': {
-      // 20-year linear taper ending at knee year (matches Vanguard TDF glide path)
-      const taperStart = Math.max(0, kneeYear - 20);
-      if (year <= taperStart) return 0;
-      if (year >= kneeYear) return 1;
-      return (year - taperStart) / (kneeYear - taperStart);
-    }
-    case 'target-date':
-      // Sudden shift at knee year
-      return year >= kneeYear ? 1 : 0;
-    case 'none':
-      // Always aggressive
-      return 0;
-    case 'sigmoid':
-    default:
-      return 1 / (1 + Math.exp(-steepness * (year - kneeYear)));
-  }
+export function getAllocationFraction(year, kneeYear, deriskYears, steepness, strategy) {
+  // Legacy strategies preserved for file compatibility
+  if (strategy === 'target-date') return year >= kneeYear ? 1 : 0;
+  if (strategy === 'none') return 0;
+  if (strategy === 'sigmoid') return 1 / (1 + Math.exp(-steepness * (year - kneeYear)));
+
+  // Default: configurable linear taper (lifecycle)
+  const taperYears = deriskYears ?? 20;
+  if (taperYears === 0) return year >= kneeYear ? 1 : 0;
+  const taperStart = Math.max(0, kneeYear - taperYears);
+  if (year <= taperStart) return 0;
+  if (year >= kneeYear) return 1;
+  return (year - taperStart) / (kneeYear - taperStart);
 }
 
 /**
@@ -118,7 +113,7 @@ export function getBlendedParams(year, params = {}) {
   const p = { ...DEFAULTS, ...params };
 
   const conservativeFraction = getAllocationFraction(
-    year, p.kneeYear, p.steepness, p.strategy
+    year, p.kneeYear, p.deriskYears, p.steepness, p.strategy
   );
   const aggressiveFraction = 1 - conservativeFraction;
 
@@ -147,7 +142,7 @@ export function getYieldCurve(totalYears, params = {}) {
   for (let year = 0; year <= totalYears; year++) {
     const { mean, volatility } = getBlendedParams(year, p);
     const conservativePct = getAllocationFraction(
-      year, p.kneeYear, p.steepness, p.strategy
+      year, p.kneeYear, p.deriskYears, p.steepness, p.strategy
     );
     curve.push({ year, mean, volatility, conservativePct });
   }

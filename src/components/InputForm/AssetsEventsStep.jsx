@@ -3,13 +3,7 @@ import RentalProperties from './RentalProperties.jsx';
 import PrimaryResidence from './PrimaryResidence.jsx';
 
 const InfoIcon = ({ tip }) => (
-  <span className="info-icon" data-tip={tip}>
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="12" y1="16" x2="12" y2="12"/>
-      <line x1="12" y1="8" x2="12.01" y2="8"/>
-    </svg>
-  </span>
+  <span className="info-icon" data-tip={tip}>ⓘ</span>
 );
 
 export default function AssetsEventsStep({

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import blsData from '../../data/blsExpenses.json';
 import NumericInput from './NumericInput.jsx';
 
@@ -10,14 +11,57 @@ const fmt = (n) =>
   n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
 const InfoIcon = ({ tip }) => (
-  <span className="info-icon" data-tip={tip}>
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="12" y1="16" x2="12" y2="12"/>
-      <line x1="12" y1="8" x2="12.01" y2="8"/>
-    </svg>
-  </span>
+  <span className="info-icon" data-tip={tip}>ⓘ</span>
 );
+
+function SpendingPromptHelper({ inputs }) {
+  const [copied, setCopied] = useState(false);
+
+  const numPeople = inputs.earners?.length ?? 1;
+  const primaryAge = inputs.earners?.[0]?.currentAge ?? 30;
+  const retirementYear = new Date().getFullYear() + (inputs.retirementAge - primaryAge);
+  const location = inputs.selectedMetro ?? 'your area';
+
+  const prompt = `Help me estimate annual retirement expenses for a ${numPeople}-person household planning to retire around ${retirementYear} in the ${location} area.
+
+We will be: [renting / owning a paid-off home / undecided]
+Healthcare coverage: [federal employee FEHB / employer coverage / Medicare only / other]
+
+Please give me realistic annual estimates in today's dollars for each category:
+• Housing (rent or mortgage, utilities, insurance, maintenance)
+• Food (groceries and dining out)
+• Transportation (insurance, gas, maintenance, registration)
+• Healthcare (premiums, copays, dental, vision, long-term care)
+• Travel & vacations
+• Entertainment & hobbies
+• Clothing & personal care
+• Subscriptions & technology
+• Other / miscellaneous
+
+For each category, give me a low / middle / high estimate and briefly note your assumptions. I'll use these numbers to build a 30+ year retirement projection.`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(prompt).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <details className="spending-prompt-helper">
+      <summary>How do I estimate my retirement expenses?</summary>
+      <div style={{ marginTop: '0.5rem' }}>
+        <p className="hint" style={{ marginBottom: '0.5rem' }}>
+          Copy this prompt and paste it into any AI assistant (Claude, ChatGPT, etc.) to get a realistic spending breakdown for your situation. Fill in the brackets before sending.
+        </p>
+        <pre className="prompt-template">{prompt}</pre>
+        <button type="button" className="copy-prompt-btn" onClick={handleCopy}>
+          {copied ? 'Copied!' : 'Copy prompt'}
+        </button>
+      </div>
+    </details>
+  );
+}
 
 export default function RetirementVisionStep({ inputs, updateInput, setLocation }) {
   const expenses = inputs.expenses;
@@ -73,6 +117,8 @@ export default function RetirementVisionStep({ inputs, updateInput, setLocation 
           </label>
         </div>
       </div>
+
+      <SpendingPromptHelper inputs={inputs} />
 
       <details className="vision-section" open>
         <summary className="expense-summary">

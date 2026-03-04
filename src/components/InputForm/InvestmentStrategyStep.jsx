@@ -3,21 +3,8 @@ import { BEFORE_PRESETS, AFTER_PRESETS } from '../../engine/investment.js';
 import NumericInput from './NumericInput.jsx';
 
 const InfoIcon = ({ tip }) => (
-  <span className="info-icon" data-tip={tip}>
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="12" y1="16" x2="12" y2="12"/>
-      <line x1="12" y1="8" x2="12.01" y2="8"/>
-    </svg>
-  </span>
+  <span className="info-icon" data-tip={tip}>ⓘ</span>
 );
-
-const STRATEGY_OPTIONS = [
-  { key: 'lifecycle', label: 'Lifecycle (20-yr taper)' },
-  { key: 'sigmoid', label: 'S-Curve (smooth transition)' },
-  { key: 'target-date', label: 'Target Date (sudden shift)' },
-  { key: 'none', label: 'None (stay aggressive)' },
-];
 
 function detectBeforePreset(params) {
   for (const [key, preset] of Object.entries(BEFORE_PRESETS)) {
@@ -51,8 +38,6 @@ export default function InvestmentStrategyStep({
   totalYears,
 }) {
   const params = inputs.investmentParams;
-  const strategy = params.strategy || 'lifecycle';
-  const steepness = params.steepness ?? 0.5;
 
   const beforeKey = useMemo(() => detectBeforePreset(params), [params]);
   const afterKey = useMemo(() => detectAfterPreset(params), [params]);
@@ -114,89 +99,38 @@ export default function InvestmentStrategyStep({
         </label>
       </div>
 
-      <details>
-        <summary>
-          Advanced: Returns & Derisking
-          <InfoIcon tip="Fine-tune return assumptions and how the portfolio transitions from aggressive to conservative over time." />
-        </summary>
-
-        <div className="form-grid" style={{ marginTop: '0.75rem' }}>
-          <label>
-            Before: Return (%)
-            <NumericInput
-              value={(params.highYieldRate * 100).toFixed(1)}
-              onChange={(e) => updateNestedInput('investmentParams', 'highYieldRate', Number(e.target.value) / 100)}
-              step={0.5}
-            />
-          </label>
-          <label>
-            Before: Volatility (%)
-            <NumericInput
-              value={(params.highYieldVolatility * 100).toFixed(1)}
-              onChange={(e) => updateNestedInput('investmentParams', 'highYieldVolatility', Number(e.target.value) / 100)}
-              step={0.5}
-            />
-          </label>
-          <label>
-            After: Return (%)
-            <NumericInput
-              value={(params.conservativeRate * 100).toFixed(1)}
-              onChange={(e) => updateNestedInput('investmentParams', 'conservativeRate', Number(e.target.value) / 100)}
-              step={0.5}
-            />
-          </label>
-          <label>
-            After: Volatility (%)
-            <NumericInput
-              value={(params.conservativeVolatility * 100).toFixed(1)}
-              onChange={(e) => updateNestedInput('investmentParams', 'conservativeVolatility', Number(e.target.value) / 100)}
-              step={0.5}
-            />
-          </label>
-        </div>
-
-        <div className="form-grid" style={{ marginTop: '0.75rem' }}>
-          <label>
-            Derisking Strategy
-            <select
-              value={strategy}
-              onChange={(e) => updateNestedInput('investmentParams', 'strategy', e.target.value)}
-            >
-              {STRATEGY_OPTIONS.map((opt) => (
-                <option key={opt.key} value={opt.key}>{opt.label}</option>
-              ))}
-            </select>
-            <span className="hint">
-              How the portfolio transitions from before-retirement to in-retirement allocation
-            </span>
-          </label>
-          <label>
-            Knee Year
-            <NumericInput
-              value={effectiveKneeYear}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                const auto = Math.max(1, inputs.retirementAge - (inputs.earners?.[0]?.currentAge ?? 30) - 10);
-                updateNestedInput('investmentParams', 'kneeYear', val === auto ? null : val);
-              }}
-              min={1} max={50}
-            />
-            <span className="hint">
-              50/50 point{params.kneeYear == null && ' [auto]'}
-            </span>
-          </label>
-          {strategy === 'sigmoid' && (
-            <label>
-              Steepness
-              <NumericInput
-                value={steepness}
-                onChange={(e) => updateNestedInput('investmentParams', 'steepness', Number(e.target.value))}
-                step={0.1} min={0.1} max={2}
-              />
-            </label>
-          )}
-        </div>
-      </details>
+      <div className="form-grid" style={{ marginTop: '0.75rem' }}>
+        <label>
+          Derisk over (years)
+          <InfoIcon tip="How many years to gradually shift from your growth allocation to your conservative allocation, ending at the knee year. Set to 0 to stay aggressive until retirement." />
+          <NumericInput
+            value={params.deriskYears ?? 20}
+            onChange={(e) => updateNestedInput('investmentParams', 'deriskYears', Number(e.target.value))}
+            min={0} max={50} step={5}
+          />
+          <span className="hint">
+            {(params.deriskYears ?? 20) === 0
+              ? 'Stays at growth allocation until retirement.'
+              : `Shifts to conservative over ${params.deriskYears ?? 20} years ending at retirement.`}
+          </span>
+        </label>
+        <label>
+          Knee year
+          <InfoIcon tip="The year (from now) when the portfolio reaches its full conservative allocation. Defaults to your retirement year." />
+          <NumericInput
+            value={effectiveKneeYear}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              const auto = Math.max(1, inputs.retirementAge - (inputs.earners?.[0]?.currentAge ?? 30));
+              updateNestedInput('investmentParams', 'kneeYear', val === auto ? null : val);
+            }}
+            min={1} max={totalYears}
+          />
+          <span className="hint">
+            Full conservative allocation at year {effectiveKneeYear}{params.kneeYear == null && ' [auto = retirement]'}
+          </span>
+        </label>
+      </div>
 
       <details>
         <summary>Advanced: Simulation Settings</summary>

@@ -11,18 +11,22 @@
  * National average expense categories for a single-person retiree household.
  * These serve as the base; they get multiplied by COL and household size
  * in the UI layer before being stored in state.
+ *
+ * inflationMultiplier: 1.0 = tracks CPI, 2.0 = grows at 2× CPI each year.
+ * Health insurance and out-of-pocket medical are set to 2× CPI to reflect
+ * persistently higher medical cost inflation.
  */
 export const DEFAULT_CATEGORIES = [
-  { key: 'housing', label: 'Housing', amount: 18000, inflationRate: 0.03, perPersonScale: 0.1 },
-  { key: 'food', label: 'Food', amount: 7500, inflationRate: 0.035, perPersonScale: 0.7 },
-  { key: 'transportation', label: 'Transportation', amount: 8000, inflationRate: 0.035, perPersonScale: 0.5 },
-  { key: 'healthInsurance', label: 'Health Insurance', amount: 7000, inflationRate: 0.05, perPersonScale: 1.0 },
-  { key: 'healthCosts', label: 'Out-of-Pocket Medical', amount: 4000, inflationRate: 0.06, perPersonScale: 1.0 },
-  { key: 'entertainment', label: 'Entertainment', amount: 3500, inflationRate: 0.03, perPersonScale: 0.5 },
-  { key: 'travel', label: 'Travel', amount: 5000, inflationRate: 0.035, perPersonScale: 0.8 },
-  { key: 'utilities', label: 'Utilities', amount: 4500, inflationRate: 0.035, perPersonScale: 0.2 },
-  { key: 'clothing', label: 'Clothing & Personal', amount: 2000, inflationRate: 0.025, perPersonScale: 1.0 },
-  { key: 'other', label: 'Other / Miscellaneous', amount: 3000, inflationRate: 0.03, perPersonScale: 0.5 },
+  { key: 'housing', label: 'Housing', amount: 18000, inflationMultiplier: 1.0, perPersonScale: 0.1 },
+  { key: 'food', label: 'Food', amount: 7500, inflationMultiplier: 1.0, perPersonScale: 0.7 },
+  { key: 'transportation', label: 'Transportation', amount: 8000, inflationMultiplier: 1.0, perPersonScale: 0.5 },
+  { key: 'healthInsurance', label: 'Health Insurance', amount: 7000, inflationMultiplier: 2.0, perPersonScale: 1.0 },
+  { key: 'healthCosts', label: 'Out-of-Pocket Medical', amount: 4000, inflationMultiplier: 2.0, perPersonScale: 1.0 },
+  { key: 'entertainment', label: 'Entertainment', amount: 3500, inflationMultiplier: 1.0, perPersonScale: 0.5 },
+  { key: 'travel', label: 'Travel', amount: 5000, inflationMultiplier: 1.0, perPersonScale: 0.8 },
+  { key: 'utilities', label: 'Utilities', amount: 4500, inflationMultiplier: 1.0, perPersonScale: 0.2 },
+  { key: 'clothing', label: 'Clothing & Personal', amount: 2000, inflationMultiplier: 1.0, perPersonScale: 1.0 },
+  { key: 'other', label: 'Other / Miscellaneous', amount: 3000, inflationMultiplier: 1.0, perPersonScale: 0.5 },
 ];
 
 /**

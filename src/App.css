@@ -1102,61 +1102,55 @@ summary {
 
 .what-if-heading {
   margin: 0 0 0.5rem;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--color-muted);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .what-if-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .what-if-btn {
-  padding: 0.35rem 0.7rem;
-  border-radius: var(--radius);
-  font-size: 0.78rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.76rem;
   font-weight: 500;
   cursor: pointer;
-  border: 1px solid transparent;
-  transition: opacity 0.15s, transform 0.1s;
+  border: 1.5px solid;
+  background: transparent;
+  transition: background 0.12s;
 }
 
 .what-if-btn:hover:not(:disabled) {
-  opacity: 0.85;
-  transform: translateY(-1px);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .what-if-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 .what-if-btn-crash {
-  background: #fef3cd;
-  color: #856404;
-  border-color: #ffc107;
+  color: #92600a;
+  border-color: #c98a00;
 }
 
 .what-if-btn-more {
-  background: #d1e7dd;
-  color: #0a3622;
-  border-color: #198754;
+  color: #1a6640;
+  border-color: #2ca065;
 }
 
 .what-if-btn-less {
-  background: #f8d7da;
-  color: #58151c;
-  border-color: #dc3545;
+  color: #7d1f28;
+  border-color: #c03a3a;
 }
 
 .what-if-btn-retire {
-  background: #cfe2ff;
-  color: #052c65;
-  border-color: #0d6efd;
+  color: #0a3580;
+  border-color: #3a68cc;
 }
 
 .what-if-comparison {

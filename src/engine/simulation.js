@@ -40,7 +40,6 @@
 
 import { getBlendedParams } from './investment.js';
 import { INFLATION_DEFAULTS } from './inflation.js';
-import { getCategoryInflation } from './expenses.js';
 import { getPensionIncome } from './pensions.js';
 import { bivariateNormal, normalRandom } from './random.js';
 
@@ -164,22 +163,15 @@ export function runSimulation(config) {
     cumulativeRentInflation *= 1 + baseInflation;
 
     for (let c = 0; c < expenses.length; c++) {
-      const catInflation = getCategoryInflation(
-        baseInflation,
-        expenses[c].inflationRate,
-        meanCPI
-      );
-      catCumFactors[c] *= 1 + catInflation;
+      const multiplier = expenses[c].inflationMultiplier ?? 1.0;
+      catCumFactors[c] *= 1 + baseInflation * multiplier;
     }
 
     // Update per-earner cumulative wage growth (stochastic, CPI-linked)
     for (let ei = 0; ei < earners.length; ei++) {
-      const wageInflation = getCategoryInflation(
-        baseInflation,
-        earners[ei].wageGrowthRate ?? meanCPI,
-        meanCPI
-      );
-      earnerCumWageGrowth[ei] *= 1 + wageInflation;
+      const wageRate = earners[ei].wageGrowthRate ?? meanCPI;
+      const wageDiff = wageRate - meanCPI;
+      earnerCumWageGrowth[ei] *= 1 + baseInflation + wageDiff;
     }
 
     const effectiveReturn = (stressShockEnabled && yearIndex === stressShockYear)

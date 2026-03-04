@@ -100,6 +100,7 @@ export default function Results({
           />
           <PortfolioChart
             percentileBands={results.percentileBands}
+            whatIfBands={whatIfResult?.percentileBands}
             retirementAge={inputs.retirementAge}
           />
 

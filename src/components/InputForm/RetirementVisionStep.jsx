@@ -136,7 +136,6 @@ export default function RetirementVisionStep({ inputs, updateInput, setLocation 
             <tr>
               <th>Category</th>
               <th>Amount / yr</th>
-              <th>Infl. %</th>
             </tr>
           </thead>
           <tbody>
@@ -150,19 +149,14 @@ export default function RetirementVisionStep({ inputs, updateInput, setLocation 
                     step={500} min={0}
                   />
                 </td>
-                <td>
-                  <NumericInput
-                    value={(expense.inflationRate * 100).toFixed(1)}
-                    onChange={(e) => updateExpense(i, 'inflationRate', Number(e.target.value) / 100)}
-                    step={0.5} min={0} max={15}
-                    className="inflation-input"
-                  />
-                </td>
               </tr>
             ))}
           </tbody>
         </table>
         </div>
+        <p className="hint" style={{ marginTop: '0.4rem' }}>
+          All expenses grow with CPI. Health insurance and out-of-pocket medical are modeled at 2× CPI to reflect higher healthcare cost inflation.
+        </p>
       </details>
 
       <details>

@@ -24,37 +24,43 @@ const ZOOM_LEVELS = [
   { key: 'median', label: 'Median', percentile: 'p50' },
 ];
 
-export default function PortfolioChart({ percentileBands, retirementAge }) {
-  const [zoom, setZoom] = useState('full');
+export default function PortfolioChart({ percentileBands, whatIfBands, retirementAge }) {
+  const [zoom, setZoom] = useState('median');
 
   if (!percentileBands || percentileBands.length === 0) return null;
 
-  // Transform data for stacked area fan chart:
-  // To draw a filled band between p5 and p95, we stack:
-  //   - base layer (p5 height, transparent)
-  //   - band layer (p95 - p5 height, colored)
-  const chartData = useMemo(() =>
-    percentileBands.map((d) => ({
-      age: d.age,
-      // Raw values for tooltip
-      p5: d.p5,
-      p10: d.p10,
-      p25: d.p25,
-      p50: d.p50,
-      p75: d.p75,
-      p90: d.p90,
-      p95: d.p95,
-      mean: d.mean,
-      // Stacked band layers
-      base5: d.p5,
-      band5_95: Math.max(0, d.p95 - d.p5),
-      base10: d.p10,
-      band10_90: Math.max(0, d.p90 - d.p10),
-      base25: d.p25,
-      band25_75: Math.max(0, d.p75 - d.p25),
-    })),
-    [percentileBands]
-  );
+  const chartData = useMemo(() => {
+    const wiByAge = {};
+    if (whatIfBands) {
+      whatIfBands.forEach(d => { wiByAge[d.age] = d; });
+    }
+    return percentileBands.map((d) => {
+      const wi = wiByAge[d.age];
+      return {
+        age: d.age,
+        // Raw values for tooltip
+        p5: d.p5,
+        p10: d.p10,
+        p25: d.p25,
+        p50: d.p50,
+        p75: d.p75,
+        p90: d.p90,
+        p95: d.p95,
+        mean: d.mean,
+        // Stacked band layers
+        base5: d.p5,
+        band5_95: Math.max(0, d.p95 - d.p5),
+        base10: d.p10,
+        band10_90: Math.max(0, d.p90 - d.p10),
+        base25: d.p25,
+        band25_75: Math.max(0, d.p75 - d.p25),
+        // What-if overlay
+        wi_p50: wi?.p50 ?? null,
+        wi_base25: wi?.p25 ?? null,
+        wi_band25_75: wi ? Math.max(0, wi.p75 - wi.p25) : null,
+      };
+    });
+  }, [percentileBands, whatIfBands]);
 
   const yDomain = useMemo(() => {
     if (zoom === 'full') return [0, 'auto'];
@@ -88,6 +94,11 @@ export default function PortfolioChart({ percentileBands, retirementAge }) {
         <div>10th: {fmt(data.p10)}</div>
         <div>5th: {fmt(data.p5)}</div>
         <div style={{ color: '#f57c00', marginTop: 4 }}>Mean: {fmt(data.mean)}</div>
+        {data.wi_p50 != null && (
+          <div style={{ color: '#e65100', marginTop: 4, borderTop: '1px solid #eee', paddingTop: 4 }}>
+            Scenario median: {fmt(data.wi_p50)}
+          </div>
+        )}
       </div>
     );
   };
@@ -143,6 +154,15 @@ export default function PortfolioChart({ percentileBands, retirementAge }) {
           {/* Mean line */}
           <Line type="monotone" dataKey="mean" stroke="#f57c00" strokeWidth={1} strokeDasharray="5 5" dot={false} name="Mean" />
 
+          {/* What-if overlay */}
+          {whatIfBands && (
+            <>
+              <Area type="monotone" dataKey="wi_base25" stackId="wi" fill="transparent" stroke="none" />
+              <Area type="monotone" dataKey="wi_band25_75" stackId="wi" fill="#ff8f00" stroke="none" fillOpacity={0.15} name="Scenario 25th-75th" />
+              <Line type="monotone" dataKey="wi_p50" stroke="#e65100" strokeWidth={2} strokeDasharray="5 4" dot={false} name="Scenario Median" connectNulls={false} />
+            </>
+          )}
+
           <ReferenceLine
             x={retirementAge}
             stroke="#e53935"
@@ -161,6 +181,12 @@ export default function PortfolioChart({ percentileBands, retirementAge }) {
         <span style={{ color: '#1565c0', fontWeight: 600 }}>Median</span>
         {' | '}
         <span style={{ color: '#f57c00' }}>Mean</span>
+        {whatIfBands && (
+          <>
+            {' | '}
+            <span style={{ color: '#e65100', fontWeight: 600 }}>Scenario</span>
+          </>
+        )}
       </div>
     </div>
   );

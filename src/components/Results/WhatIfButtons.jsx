@@ -23,9 +23,10 @@ export default function WhatIfButtons({
     0
   );
 
-  // Context-aware retire-later button: FERS bump if eligible
+  // Context-aware retire-later button: active FERS only (deferred/separated employees
+  // have frozen service years — working to 62 doesn't add YOS or trigger the 1.1× multiplier)
   const fersBumpEarner = inputs.earners.find(
-    (e) => e.fers != null && e.retirementAge < 62
+    (e) => e.fers?.mode === 'active' && e.retirementAge < 62
   );
 
   const handleCrash = () => {
@@ -70,7 +71,7 @@ export default function WhatIfButtons({
       const newRetirementAge = Math.max(...updatedEarners.map((e) => e.retirementAge));
       runWhatIf(
         { earners: updatedEarners, retirementAge: newRetirementAge },
-        `${fersBumpEarner.name} works to 62 (FERS 1.1× bump)`
+        `${fersBumpEarner.name}: work to 62 (FERS 1.1× bump)`
       );
     } else {
       runWhatIf(
@@ -122,7 +123,7 @@ export default function WhatIfButtons({
             disabled={isRunning}
           >
             {fersBumpEarner
-              ? `${fersBumpEarner.name} works to 62 (FERS 1.1×)`
+              ? `${fersBumpEarner.name}: work to 62 (FERS 1.1×)`
               : 'Retire 2 years later'}
           </button>
         )}

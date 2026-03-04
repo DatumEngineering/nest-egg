@@ -23,7 +23,7 @@ function SpendingPromptHelper({ inputs }) {
   const hasFEHB = inputs.earners?.some(e => e.fers != null) ?? false;
 
   const healthcareLine = hasFEHB
-    ? `Healthcare coverage: Federal employee FEHB (kept in retirement at active-employee premium rates). Use current FEHB plan rates — a high-deductible plan like GEHA HDHP runs roughly $150–$200/month for self+spouse; Blue Cross Standard Option runs $550–$650/month for self+spouse. Include dental/vision separately (FEDVIP, ~$50–$80/month). Do NOT use Medicare or marketplace estimates.`
+    ? `Healthcare coverage: Federal employee FEHB (kept in retirement at active-employee premium rates). Use current FEHB plan rates — a high-deductible plan like GEHA HDHP runs roughly $150–$200/month for self+spouse; Blue Cross Standard Option runs $550–$650/month for self+spouse. Include dental/vision (FEDVIP, ~$50–$80/month). At age 65, Medicare Part A is free; Medicare Part B (~$185/month per person in ${currentYear}) is optional but often worth adding since FEHB then waives most copays — please give separate estimates for pre-65 and post-65 healthcare costs.`
     : `Healthcare coverage: [FEHB / employer retiree coverage / Medicare + supplement / marketplace — fill in before sending]`;
 
   const prompt = `Help me estimate annual retirement expenses for a ${numPeople}-person household retiring in the ${location} area.

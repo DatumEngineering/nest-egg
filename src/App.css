@@ -1094,44 +1094,127 @@ summary {
   font-size: 0.9rem;
 }
 
-/* ── Scenario Suggestions ─────────────────────────────────── */
+/* ── What If Buttons ──────────────────────────────────────── */
 
-.scenario-suggestions {
+.what-if-section {
+  margin-top: 1rem;
+}
+
+.what-if-heading {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.what-if-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.what-if-btn {
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.what-if-btn:hover:not(:disabled) {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.what-if-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.what-if-btn-crash {
+  background: #fef3cd;
+  color: #856404;
+  border-color: #ffc107;
+}
+
+.what-if-btn-more {
+  background: #d1e7dd;
+  color: #0a3622;
+  border-color: #198754;
+}
+
+.what-if-btn-less {
+  background: #f8d7da;
+  color: #58151c;
+  border-color: #dc3545;
+}
+
+.what-if-btn-retire {
+  background: #cfe2ff;
+  color: #052c65;
+  border-color: #0d6efd;
+}
+
+.what-if-comparison {
+  margin-top: 0.6rem;
   background: var(--color-surface);
   border-radius: var(--radius);
-  padding: 0.6rem 0.75rem;
-  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
   box-shadow: var(--shadow);
-  border-left: 4px solid var(--color-primary);
+  font-size: 0.82rem;
 }
 
-.scenario-suggestions h4 {
-  margin: 0 0 0.35rem;
-  color: var(--color-primary);
+.what-if-comparison-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.what-if-label {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.what-if-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-muted);
   font-size: 0.85rem;
+  padding: 0 0.25rem;
+  line-height: 1;
 }
 
-.scenario-suggestions ul {
-  margin: 0;
-  padding-left: 1rem;
+.what-if-clear:hover {
+  color: var(--color-text);
 }
 
-.scenario-suggestions li {
-  font-size: 0.8rem;
-  margin-bottom: 0.35rem;
-  line-height: 1.35;
+.what-if-rates {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-muted);
 }
 
-.suggestion-fers-bump {
+.what-if-rates strong {
+  color: var(--color-text);
+}
+
+.what-if-arrow {
+  color: var(--color-muted);
+}
+
+.what-if-better strong {
   color: var(--color-success);
 }
 
-.suggestion-retire-later {
-  color: var(--color-warning);
-}
-
-.suggestion-over-saving {
-  color: var(--color-primary);
+.what-if-worse strong {
+  color: var(--color-danger, #dc3545);
 }
 
 /* ── Responsive: Tablet (≤768px) ─────────────────────────── */

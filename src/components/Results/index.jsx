@@ -4,7 +4,7 @@ import PortfolioChart from './PortfolioChart.jsx';
 import CoastCurveChart from './CoastCurveChart.jsx';
 import YieldCurveChart from './YieldCurveChart.jsx';
 import SpendingChart from './SpendingChart.jsx';
-import ScenarioSuggestions from './ScenarioSuggestions.jsx';
+import WhatIfButtons from './WhatIfButtons.jsx';
 
 export default function Results({
   results,
@@ -18,12 +18,17 @@ export default function Results({
   totalPortfolio,
   primaryAge,
   error,
+  whatIfResult,
+  whatIfLabel,
+  runWhatIf,
+  clearWhatIf,
+  isRunning,
 }) {
   const [showYieldCurve, setShowYieldCurve] = useState(false);
   const [showCoastCurve, setShowCoastCurve] = useState(false);
   const [showSpending, setShowSpending] = useState(false);
 
-  const hasDerisking = inputs.investmentParams?.strategy !== 'none';
+  const hasDerisking = (inputs.investmentParams?.deriskYears ?? 20) > 0;
 
   return (
     <div className="results">
@@ -98,11 +103,15 @@ export default function Results({
             retirementAge={inputs.retirementAge}
           />
 
-          <ScenarioSuggestions
+          <WhatIfButtons
             results={results}
             inputs={inputs}
-            coastYearResult={coastYearResult}
-            perEarnerCoast={perEarnerCoast}
+            whatIfResult={whatIfResult}
+            whatIfLabel={whatIfLabel}
+            runWhatIf={runWhatIf}
+            clearWhatIf={clearWhatIf}
+            isRunning={isRunning}
+            primaryAge={primaryAge}
           />
         </>
       )}

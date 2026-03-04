@@ -222,6 +222,25 @@ export default function RetirementVisionStep({ inputs, updateInput, setLocation 
               step={0.05} min={-1} max={1}
             />
           </label>
+          <div style={{ gridColumn: '1 / -1', marginTop: '0.25rem' }}>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={inputs.guardrailsEnabled ?? true}
+                onChange={(e) => updateInput('guardrailsEnabled', e.target.checked)}
+              />
+              Flexible spending in retirement
+            </label>
+            <details style={{ marginTop: '0.25rem', marginLeft: '1.5rem' }}>
+              <summary className="hint" style={{ cursor: 'pointer' }}>What does this do?</summary>
+              <p className="hint" style={{ marginTop: '0.25rem' }}>
+                In bad market years, spending trims by up to 10% (but never below 85% of your plan).
+                In good years, spending can rise up to 10% (capped at 120%). This models realistic
+                spending flexibility rather than rigid fixed withdrawals. Based on the Guyton-Klinger
+                guardrail rule. Uncheck to model completely rigid spending.
+              </p>
+            </details>
+          </div>
         </div>
       </details>
     </fieldset>

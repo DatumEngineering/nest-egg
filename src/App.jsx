@@ -40,6 +40,10 @@ function App() {
     isRunning,
     error,
     runSimulation,
+    whatIfResult,
+    whatIfLabel,
+    runWhatIf,
+    clearWhatIf,
   } = useSimulation();
 
   const totalYears = deathAge - primaryAge;
@@ -163,6 +167,11 @@ function App() {
             totalPortfolio={totalPortfolio}
             primaryAge={primaryAge}
             error={error}
+            whatIfResult={whatIfResult}
+            whatIfLabel={whatIfLabel}
+            runWhatIf={runWhatIf}
+            clearWhatIf={clearWhatIf}
+            isRunning={isRunning}
           />
         </div>
       </main>

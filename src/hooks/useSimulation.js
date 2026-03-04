@@ -57,16 +57,7 @@ export const DEFAULT_INPUTS = {
 
   primaryResidence: null,
 
-  survivorExpenseFraction: 0.75,
-  guardrailsEnabled: false,
-  upperGuardrail: 0.25,
-  lowerGuardrail: 0.25,
-  spendingFloor: 0.85,
-  spendingCeiling: 1.20,
-
-  stressShockEnabled: false,
-  stressShockYear: 15,
-  stressShockMagnitude: -0.30,
+  guardrailsEnabled: true,
 };
 
 export function useSimulation() {
@@ -77,6 +68,8 @@ export function useSimulation() {
   const [perEarnerCoast, setPerEarnerCoast] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState(null);
+  const [whatIfResult, setWhatIfResult] = useState(null);
+  const [whatIfLabel, setWhatIfLabel] = useState('');
 
   // ── Derived values ────────────────────────────────────────────
   const primaryAge = inputs.earners[0]?.currentAge ?? 30;
@@ -327,15 +320,7 @@ export function useSimulation() {
           primaryResidence: inputs.primaryResidence,
           numRuns: inputs.numRuns,
           confidenceTarget: inputs.confidenceTarget,
-          survivorExpenseFraction: inputs.survivorExpenseFraction,
           guardrailsEnabled: inputs.guardrailsEnabled,
-          upperGuardrail: inputs.upperGuardrail,
-          lowerGuardrail: inputs.lowerGuardrail,
-          spendingFloor: inputs.spendingFloor,
-          spendingCeiling: inputs.spendingCeiling,
-          stressShockEnabled: inputs.stressShockEnabled,
-          stressShockYear: inputs.stressShockYear,
-          stressShockMagnitude: inputs.stressShockMagnitude,
         };
 
         const mcResults = runMonteCarlo(config);
@@ -364,6 +349,53 @@ export function useSimulation() {
       }
     }, 50);
   }, [inputs, primaryAge, totalPortfolio, effectiveParams]);
+
+  const runWhatIf = useCallback((overriddenInputs, label) => {
+    setIsRunning(true);
+    setWhatIfResult(null);
+    setTimeout(() => {
+      try {
+        const merged = { ...inputs, ...overriddenInputs };
+        const mergedAge = merged.earners[0]?.currentAge ?? 30;
+        const mergedDeathAge = Math.max(...merged.earners.map(e => e.deathAge || 95));
+        const mergedPortfolio = merged.earners.reduce((s, e) => s + (e.portfolio || 0), 0);
+        const mergedKneeYear = merged.investmentParams.kneeYear ?? Math.max(1, merged.retirementAge - mergedAge);
+        const mergedParams = { ...merged.investmentParams, kneeYear: mergedKneeYear };
+        const pensions = buildAllPensions(merged.earners, []);
+        const config = {
+          primaryCurrentAge: mergedAge,
+          retirementAge: merged.retirementAge,
+          deathAge: mergedDeathAge,
+          startingPortfolio: mergedPortfolio,
+          earners: merged.earners,
+          expenses: merged.expenses,
+          pensions,
+          investmentParams: mergedParams,
+          inflationParams: merged.inflationParams,
+          effectiveTaxRate: merged.effectiveTaxRate,
+          windfallEvents: merged.windfallEvents,
+          rentalProperties: merged.rentalProperties,
+          primaryResidence: merged.primaryResidence,
+          numRuns: merged.numRuns,
+          confidenceTarget: merged.confidenceTarget,
+          guardrailsEnabled: merged.guardrailsEnabled,
+          ...(overriddenInputs._simOverrides || {}),
+        };
+        const mcResult = runMonteCarlo(config);
+        setWhatIfResult(mcResult);
+        setWhatIfLabel(label);
+      } catch (err) {
+        console.error('What-if error:', err);
+      } finally {
+        setIsRunning(false);
+      }
+    }, 50);
+  }, [inputs]);
+
+  const clearWhatIf = useCallback(() => {
+    setWhatIfResult(null);
+    setWhatIfLabel('');
+  }, []);
 
   return {
     inputs,
@@ -398,5 +430,9 @@ export function useSimulation() {
     isRunning,
     error,
     runSimulation: runSim,
+    whatIfResult,
+    whatIfLabel,
+    runWhatIf,
+    clearWhatIf,
   };
 }

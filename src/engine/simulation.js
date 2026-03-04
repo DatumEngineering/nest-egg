@@ -64,16 +64,17 @@ export function runSimulation(config) {
     windfallEvents = [],
     rentalProperties = [],
     primaryResidence = null,
-    guardrailsEnabled = false,
-    upperGuardrail = 0.25,
-    lowerGuardrail = 0.25,
-    spendingFloor = 0.85,
-    spendingCeiling = 1.20,
-    survivorExpenseFraction = 0.75,
+    guardrailsEnabled = true,
     stressShockEnabled = false,
     stressShockYear = 15,
     stressShockMagnitude = -0.30,
   } = config;
+
+  // Fixed guardrail constants (Guyton-Klinger)
+  const GUARDRAIL_UPPER = 0.20;
+  const GUARDRAIL_LOWER = 0.20;
+  const GUARDRAIL_FLOOR = 0.85;
+  const GUARDRAIL_CEILING = 1.20;
 
   const infParams = { ...INFLATION_DEFAULTS, ...inflationParams };
   const rng = config.rngFn || bivariateNormal;
@@ -330,10 +331,10 @@ export function runSimulation(config) {
           } else {
             const currentRate = (baseExpenses * spendingMultiplier * taxMultiplier
               - totalPensionIncome - workingIncome - rentalIncome) / portfolio;
-            if (currentRate > initialWithdrawalRate * (1 + upperGuardrail)) {
-              spendingMultiplier = Math.max(spendingFloor, spendingMultiplier * 0.90);
-            } else if (currentRate < initialWithdrawalRate * (1 - lowerGuardrail)) {
-              spendingMultiplier = Math.min(spendingCeiling, spendingMultiplier * 1.10);
+            if (currentRate > initialWithdrawalRate * (1 + GUARDRAIL_UPPER)) {
+              spendingMultiplier = Math.max(GUARDRAIL_FLOOR, spendingMultiplier * 0.90);
+            } else if (currentRate < initialWithdrawalRate * (1 - GUARDRAIL_LOWER)) {
+              spendingMultiplier = Math.min(GUARDRAIL_CEILING, spendingMultiplier * 1.10);
             }
           }
         }
@@ -341,11 +342,6 @@ export function runSimulation(config) {
 
       // Apply guardrails multiplier
       totalExpenses = baseExpenses * spendingMultiplier;
-
-      // Survivor expense reduction: only when fully retired and one earner has died
-      if (allRetired && anyDeceased && earners.length > 1) {
-        totalExpenses *= survivorExpenseFraction;
-      }
 
       // Net cash flow: expenses minus income sources
       const preTaxNeeded = totalExpenses * taxMultiplier;

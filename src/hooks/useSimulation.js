@@ -376,7 +376,7 @@ export function useSimulation() {
           windfallEvents: merged.windfallEvents,
           rentalProperties: merged.rentalProperties,
           primaryResidence: merged.primaryResidence,
-          numRuns: merged.numRuns,
+          numRuns: Math.max(merged.numRuns, 3000),
           confidenceTarget: merged.confidenceTarget,
           guardrailsEnabled: merged.guardrailsEnabled,
           ...(overriddenInputs._simOverrides || {}),

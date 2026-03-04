@@ -1114,43 +1114,25 @@ summary {
 }
 
 .what-if-btn {
-  padding: 0.25rem 0.6rem;
+  padding: 0.25rem 0.55rem;
   border-radius: 6px;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   font-weight: 500;
   cursor: pointer;
-  border: 1.5px solid;
-  background: transparent;
-  transition: background 0.12s;
+  border: 1px solid var(--color-border, #d0d5dd);
+  background: var(--color-surface);
+  color: var(--color-text);
+  white-space: nowrap;
+  transition: background 0.1s, border-color 0.1s;
 }
 
 .what-if-btn:hover:not(:disabled) {
-  background: rgba(0, 0, 0, 0.05);
+  border-color: var(--color-primary);
 }
 
 .what-if-btn:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
-}
-
-.what-if-btn-crash {
-  color: #92600a;
-  border-color: #c98a00;
-}
-
-.what-if-btn-more {
-  color: #1a6640;
-  border-color: #2ca065;
-}
-
-.what-if-btn-less {
-  color: #7d1f28;
-  border-color: #c03a3a;
-}
-
-.what-if-btn-retire {
-  color: #0a3580;
-  border-color: #3a68cc;
 }
 
 .what-if-comparison {

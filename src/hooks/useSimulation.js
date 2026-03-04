@@ -41,7 +41,7 @@ export const DEFAULT_INPUTS = {
     returnInflationCorrelation: 0.3,
   },
 
-  numRuns: 1000,
+  numRuns: 3000,
   confidenceTarget: 0.83,
 
   colMultiplier: 1.0,
@@ -376,7 +376,7 @@ export function useSimulation() {
           windfallEvents: merged.windfallEvents,
           rentalProperties: merged.rentalProperties,
           primaryResidence: merged.primaryResidence,
-          numRuns: Math.max(merged.numRuns, 2000),
+          numRuns: merged.numRuns,
           confidenceTarget: merged.confidenceTarget,
           guardrailsEnabled: merged.guardrailsEnabled,
           ...(overriddenInputs._simOverrides || {}),

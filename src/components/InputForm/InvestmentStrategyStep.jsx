@@ -142,7 +142,9 @@ export default function InvestmentStrategyStep({
               onChange={(e) => updateInput('numRuns', Number(e.target.value))}
               min={100} max={5000} step={100}
             />
-            <span className="hint">1,000 is fast; 5,000 is the max (diminishing returns above ~3,000)</span>
+            <span className="hint">
+              ±{(1.96 * Math.sqrt(0.09 / inputs.numRuns) * 100).toFixed(1)}% margin of error (95% CI)
+            </span>
           </label>
           <label>
             Confidence Target (%)

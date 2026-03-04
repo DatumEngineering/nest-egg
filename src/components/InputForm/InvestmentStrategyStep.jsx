@@ -140,8 +140,9 @@ export default function InvestmentStrategyStep({
             <NumericInput
               value={inputs.numRuns}
               onChange={(e) => updateInput('numRuns', Number(e.target.value))}
-              min={100} max={10000} step={100}
+              min={100} max={5000} step={100}
             />
+            <span className="hint">1,000 is fast; 5,000 is the max (diminishing returns above ~3,000)</span>
           </label>
           <label>
             Confidence Target (%)

@@ -73,8 +73,7 @@ export default function InvestmentStrategyStep({
 
       <div className="form-grid risk-dropdowns">
         <label>
-          Before Retirement
-          <InfoIcon tip="Growth-phase allocation while you're still working and saving. Higher return means higher volatility." />
+          <span>Before Retirement <InfoIcon tip="Growth-phase allocation while you're still working and saving. Higher return means higher volatility." /></span>
           <select value={beforeKey} onChange={handleBeforeChange}>
             {Object.entries(BEFORE_PRESETS).map(([key, preset]) => (
               <option key={key} value={key}>{preset.label}</option>
@@ -86,8 +85,7 @@ export default function InvestmentStrategyStep({
         </label>
 
         <label>
-          In Retirement
-          <InfoIcon tip="Drawdown-phase allocation after you stop working. Lower volatility protects against sequence-of-returns risk." />
+          <span>In Retirement <InfoIcon tip="Drawdown-phase allocation after you stop working. Lower volatility protects against sequence-of-returns risk." /></span>
           <select value={afterKey} onChange={handleAfterChange}>
             {Object.entries(AFTER_PRESETS).map(([key, preset]) => (
               <option key={key} value={key}>{preset.label}</option>
@@ -101,8 +99,7 @@ export default function InvestmentStrategyStep({
 
       <div className="form-grid" style={{ marginTop: '0.75rem' }}>
         <label>
-          Derisk over (years)
-          <InfoIcon tip="How many years to gradually shift from your growth allocation to your conservative allocation, ending at the knee year. Set to 0 to stay aggressive until retirement." />
+          <span>Derisk over (years) <InfoIcon tip="How many years to gradually shift from your growth allocation to your conservative allocation. Set to 0 to stay aggressive until retirement." /></span>
           <NumericInput
             value={params.deriskYears ?? 20}
             onChange={(e) => updateNestedInput('investmentParams', 'deriskYears', Number(e.target.value))}
@@ -115,8 +112,7 @@ export default function InvestmentStrategyStep({
           </span>
         </label>
         <label>
-          Knee year
-          <InfoIcon tip="The year (from now) when the portfolio reaches its full conservative allocation. Defaults to your retirement year." />
+          <span>Derisked by year <InfoIcon tip="The year from now when the portfolio finishes shifting to its conservative allocation. Defaults to your retirement year." /></span>
           <NumericInput
             value={effectiveKneeYear}
             onChange={(e) => {

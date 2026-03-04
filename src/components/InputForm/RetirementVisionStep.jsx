@@ -55,7 +55,7 @@ For each category, give me a low / middle / high estimate and briefly explain yo
 
   return (
     <details className="spending-prompt-helper">
-      <summary>How do I estimate my retirement expenses?</summary>
+      <summary>How do I refine these retirement expense estimates?</summary>
       <div style={{ marginTop: '0.5rem' }}>
         <p className="hint" style={{ marginBottom: '0.5rem' }}>
           Copy this prompt and paste it into any AI assistant (Claude, ChatGPT, etc.) to get a realistic spending breakdown for your situation. Fill in the brackets before sending.

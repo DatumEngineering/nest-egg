@@ -69,9 +69,10 @@ Central state management. Key features:
 ### Expense Model
 - Amounts are in today's dollars, stored as final values (COL + household size already applied)
 - Changing location **replaces** all expense amounts via `buildExpensesForLocation()`
-- Per-category inflation rates (housing 3%, health 5-6%, etc.)
+- `inflationMultiplier` per category (healthcare = 2.0×, all others = 1.0×)
 - `perPersonScale` per category for household size (Housing 10%, Food 70%, Health 100%, etc.)
-- Stochastic inflation: `getCategoryInflation(baseCPIDraw, categoryRate, meanCPI)` = `baseCPIDraw + (categoryRate - meanCPI)`
+- Stochastic inflation per category: `baseCPIDraw * inflationMultiplier`
+- `getCategoryInflation()` still exported from expenses.js but no longer called by simulation
 
 ### Tax Model
 - `preTaxNeeded = expenses / (1 - effectiveTaxRate)`
@@ -134,5 +135,5 @@ Central state management. Key features:
 - After retirement: moderate (4% return, 5% vol)
 - Derisking: `deriskYears=20`, knee year auto = retirement year, df=5
 - Tax: 0%, Location: National Average (1.0x COL)
-- MC: 1000 runs, 83% confidence target
+- MC: 3000 runs, 83% confidence target
 - Guardrails: off, stress shock: off, survivor fraction: 75%

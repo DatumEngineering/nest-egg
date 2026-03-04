@@ -28,13 +28,17 @@ export default function AboutPanel({ isOpen, onClose }) {
           <li>FERS pension calculator with immediate/deferred eligibility</li>
           <li>Social Security with early/delayed claiming adjustments</li>
           <li>Generic pensions and defined benefit plans</li>
-          <li>Per-category inflation modeling (healthcare, housing, etc.)</li>
-          <li>Investment derisking strategies (lifecycle, S-curve, target-date)</li>
+          <li>Healthcare inflation modeled at 2&times; general CPI; all other categories track CPI</li>
+          <li>Configurable investment derisking (linear lifecycle glide path)</li>
           <li>Fat-tailed return modeling (Student&apos;s t-distribution)</li>
           <li>Coast FIRE number and coast year calculations</li>
           <li>Windfall events with stochastic timing (inheritance, equity, etc.)</li>
           <li>Investment property income with appreciation and optional sale</li>
           <li>Cost-of-living adjustment by metro area</li>
+          <li>Spending guardrails (Guyton-Klinger): automatic 10% spending cuts/raises based on withdrawal rate drift</li>
+          <li>Survivor benefit modeling: Social Security max-not-sum, FERS survivor annuity, pension stop on death</li>
+          <li>Primary residence downsizing: net equity flows to portfolio at a specified future year</li>
+          <li>What-if scenario explorer: market crash, save more/less, retire later &mdash; overlaid on chart</li>
         </ul>
 
         <h3>Data Sources</h3>
@@ -60,10 +64,13 @@ export default function AboutPanel({ isOpen, onClose }) {
           </dd>
           <dt>Inflation Assumptions</dt>
           <dd>
-            Per-category inflation rates based on historical CPI sub-indices from the{' '}
+            General inflation drawn stochastically based on{' '}
             <a href="https://www.bls.gov/cpi/" target="_blank" rel="noopener noreferrer">
               BLS Consumer Price Index
-            </a>. Healthcare trends at 5-6% vs 3% general CPI.
+            </a>
+            {' '}historical data (mean 3%, &sigma; 1.5%). Healthcare is modeled at 2&times; general CPI
+            to reflect persistently higher medical cost inflation. All other expense categories track
+            general CPI.
           </dd>
           <dt>Investment Returns</dt>
           <dd>
@@ -90,7 +97,7 @@ export default function AboutPanel({ isOpen, onClose }) {
           bivariate Student&apos;s t-distribution (df=5 default) using Cholesky decomposition,
           producing fat-tailed returns that better model market crashes and booms.
           Expenses compound with per-category stochastic inflation. The Monte Carlo
-          engine runs 1,000 independent paths (configurable) and reports success rate,
+          engine runs 3,000 independent paths (configurable) and reports success rate,
           percentile bands, and Coast FIRE metrics via binary search.
         </p>
 

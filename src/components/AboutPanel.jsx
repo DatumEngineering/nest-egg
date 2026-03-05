@@ -101,6 +101,16 @@ export default function AboutPanel({ isOpen, onClose }) {
           percentile bands, and Coast FIRE metrics via binary search.
         </p>
 
+        <h3>License</h3>
+        <p>
+          NestEgg is open source software released under the{' '}
+          <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener noreferrer">
+            GNU Affero General Public License v3
+          </a>
+          . You are free to use, modify, and redistribute it. Any derivative work or hosted
+          deployment must also be released under AGPL-3.0 with source code made available.
+        </p>
+
         <p className="about-disclaimer">
           This tool is for educational and planning purposes only. It is not financial advice.
           Consult a qualified financial advisor for decisions about your retirement.

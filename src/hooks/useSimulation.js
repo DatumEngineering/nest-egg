@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   runMonteCarlo, calculateCoastNumber, calculateCoastYear,
   buildAllPensions, buildExpensesForLocation, buildInvestmentParams,
@@ -58,8 +58,26 @@ export const DEFAULT_INPUTS = {
   guardrailsEnabled: true,
 };
 
+const LS_KEY = 'nestegg_inputs';
+
+function loadSavedInputs() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    return saved ? JSON.parse(saved) : DEFAULT_INPUTS;
+  } catch {
+    return DEFAULT_INPUTS;
+  }
+}
+
 export function useSimulation() {
-  const [inputs, setInputs] = useState(DEFAULT_INPUTS);
+  const [inputs, setInputs] = useState(loadSavedInputs);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(inputs)); } catch {}
+    }, 500);
+    return () => clearTimeout(t);
+  }, [inputs]);
   const [results, setResults] = useState(null);
   const [coastResult, setCoastResult] = useState(null);
   const [coastYearResult, setCoastYearResult] = useState(null);

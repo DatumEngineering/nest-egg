@@ -113,24 +113,18 @@ body {
   border-color: var(--color-primary);
 }
 
-/* ── Privacy Banner ─────────────────────────────────────── */
+/* ── Footer ──────────────────────────────────────────────── */
 
-.privacy-banner {
+.app-footer {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  margin-bottom: 0.75rem;
-  background: var(--color-success-bg);
-  border: 1px solid var(--color-success);
-  border-radius: var(--radius);
-  color: var(--color-success);
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.privacy-banner svg {
-  flex-shrink: 0;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1rem 0.75rem 0.75rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
 }
 
 /* ── Info Icon ────────────────────────────────────────────── */
@@ -1309,9 +1303,4 @@ summary {
     font-size: 0.85rem;
   }
 
-  /* Privacy banner — smaller */
-  .privacy-banner {
-    font-size: 0.75rem;
-    padding: 0.35rem 0.5rem;
-  }
 }

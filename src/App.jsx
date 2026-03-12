@@ -121,10 +121,6 @@ function App() {
 
       <main className="app-main">
         <div className="input-panel">
-          <div className="privacy-banner">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <span>Your data never leaves your browser. No accounts, no cookies, no tracking.</span>
-          </div>
           <InputForm
             inputs={inputs}
             updateInput={updateInput}
@@ -167,6 +163,11 @@ function App() {
           />
         </div>
       </main>
+
+      <footer className="app-footer">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        All data stays in your browser — no accounts, no tracking, no ads. Your inputs auto-save locally.
+      </footer>
     </div>
   );
 }

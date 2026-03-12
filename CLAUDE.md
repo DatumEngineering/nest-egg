@@ -41,19 +41,16 @@ All simulation math lives here. No external dependencies.
 #### Results
 | File | Visibility | Purpose |
 |------|-----------|---------|
-| `YieldCurveChart.jsx` | Always (reactive) | Investment glide path: mean return, volatility, 1-sigma band |
-| `CoastCurveChart.jsx` | Always (deterministic) + collapsible (MC) | Coast FIRE number by age |
-| `SpendingChart.jsx` | Behind toggle | Inflation-adjusted spending projection |
 | `SuccessRate.jsx` | After MC run | Success %, coast FIRE number, coast year, per-earner coast |
 | `PortfolioChart.jsx` | After MC run | Percentile fan chart (5th-95th) |
-| `ScenarioSuggestions.jsx` | After MC run | Auto-generated optimization suggestions |
+| `WhatIfButtons.jsx` | After MC run | Scenario comparison buttons and delta display |
 
 ### Hook (`src/hooks/useSimulation.js`)
 Central state management. Key features:
 - **Per-earner portfolio** (summed for simulation as `totalPortfolio`)
 - **Before/After presets** drive `investmentParams` (highYield* / conservative*), strategy preserved independently
-- **Reactive computations** via `useMemo`: `yieldCurveData`, `deterministicCoastData`, `spendingProjectionData`
-- **MC only on Run** button click (not reactive)
+- **MC only on Run** button click (not reactive) — 3000 runs too heavy for reactive updates
+- **localStorage auto-save**: debounced 500ms write to `nestegg_inputs` key on every inputs change; lazy initializer restores on first render with silent fallback to defaults
 - **Location change** calls `buildExpensesForLocation(multiplier, numPeople)` to bake COL directly into expense amounts
 - **Earner add/remove** also re-bakes expenses for household size
 - **Retirement age sync**: primary earner's retirementAge <-> household retirementAge
@@ -101,8 +98,7 @@ Central state management. Key features:
 - DB Pension: `years × multiplier × finalAvgSalary`, optional COLA
 
 ### Coast FIRE
-- **Deterministic** (reactive): binary search with mean returns, instant computation
-- **Monte Carlo** (on demand): binary search with N=1000 stochastic runs
+- **Monte Carlo** (on demand, triggered by Run button): binary search with N=1000 stochastic runs
 - **Per-earner coast**: when multiple earners, shows when each could stop contributing
 
 ### Simulation Flow
@@ -123,13 +119,15 @@ Central state management. Key features:
 - All pension objects carry `earnerIndex` to link them to their earner for survivor checks.
 
 ### UI Patterns
-- Info icons use CSS `::after` pseudo-element tooltips with `data-tip` attribute (not native `title`)
-- `InfoIcon` renders as `ⓘ` text character (no SVG)
-- Header has Save/Load buttons for `.nestegg` file export/import
+- `InfoIcon` is a CSS-drawn circle (`border-radius: 50%`, `1.5px` border) with italic `i` as text content; tooltip uses `::after` (text) + `::before` (arrow) pseudo-elements with `data-tip` attribute (not native `title`)
+- Earner form uses `.form-grid-earner` (3-column grid) — dollar fields (`Portfolio`, `Annual Income`) span 2 cols; age/rate fields take 1 col
+- Header has Save/Load buttons for `.nestegg` file export/import; inputs also auto-save to `localStorage`
+- Footer (not banner) shows privacy/tracking notice with lock SVG icon
 - Spending prompt helper in Step 2: collapsible section with pre-populated AI prompt template and copy button
 
 ## Defaults
-- Earner: age 30, portfolio $50K, income $75K, savings 20%, wage growth 3%
+- Primary earner: age 30, portfolio $50K, income $75K, savings 20%, wage growth 3%
+- Added earners: age/retirement/death match primary earner; portfolio $0, income $0, savings 0%
 - Retirement: age 65, death age 95
 - Before retirement: moderate (10.5% return, 16% vol)
 - After retirement: moderate (4% return, 5% vol)

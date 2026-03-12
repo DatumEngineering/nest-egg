@@ -333,7 +333,7 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
               )}
             </div>
 
-            <div className="form-grid">
+            <div className="form-grid-earner">
               <label>
                 Age
                 <NumericInput
@@ -342,7 +342,7 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
                   min={18} max={80}
                 />
               </label>
-              <label>
+              <label style={{ gridColumn: 'span 2' }}>
                 Portfolio
                 <NumericInput
                   value={earner.portfolio}
@@ -350,7 +350,7 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
                   step={5000} min={0}
                 />
               </label>
-              <label>
+              <label style={{ gridColumn: 'span 2' }}>
                 Annual Income
                 <NumericInput
                   value={earner.salary}

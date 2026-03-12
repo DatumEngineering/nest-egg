@@ -329,9 +329,21 @@ legend {
   gap: 0.5rem;
 }
 
+/* Earner fields: 3-col grid so short fields (age, %) stay narrow,
+   dollar fields span 2 cols to signal they're wider values */
+.form-grid-earner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
 @media (max-width: 500px) {
-  .form-grid {
+  .form-grid,
+  .form-grid-earner {
     grid-template-columns: 1fr;
+  }
+  .form-grid-earner label[style] {
+    grid-column: unset !important;
   }
 }
 

@@ -142,15 +142,18 @@ export function useSimulation() {
     setInputs(prev => {
       const n = prev.earners.length;
       const primary = prev.earners[0];
-      const yearsToRetire = prev.retirementAge - (primary?.currentAge ?? 30);
+      const primaryAge = primary?.currentAge ?? 30;
       const newEarners = [
         ...prev.earners,
         {
           ...DEFAULT_EARNER,
           name: EARNER_NAMES[n] || `Partner ${n + 1}`,
-          currentAge: 30,
-          retirementAge: 30 + yearsToRetire,
-          deathAge: 95,
+          currentAge: primaryAge,
+          retirementAge: primary?.retirementAge ?? 65,
+          deathAge: primary?.deathAge ?? 95,
+          portfolio: 0,
+          salary: 0,
+          savingsRate: 0,
         },
       ];
       const newExpenses = buildExpensesForLocation(prev.colMultiplier, newEarners.length);

@@ -1,9 +1,7 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   runMonteCarlo, calculateCoastNumber, calculateCoastYear,
-  calculateDeterministicCoast, calculateSpendingProjection,
   buildAllPensions, buildExpensesForLocation, buildInvestmentParams,
-  getYieldCurve,
 } from '../engine/index.js';
 import { DEFAULT_CATEGORIES } from '../engine/expenses.js';
 
@@ -60,8 +58,26 @@ export const DEFAULT_INPUTS = {
   guardrailsEnabled: true,
 };
 
+const LS_KEY = 'nestegg_inputs';
+
+function loadSavedInputs() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    return saved ? JSON.parse(saved) : DEFAULT_INPUTS;
+  } catch {
+    return DEFAULT_INPUTS;
+  }
+}
+
 export function useSimulation() {
-  const [inputs, setInputs] = useState(DEFAULT_INPUTS);
+  const [inputs, setInputs] = useState(loadSavedInputs);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(inputs)); } catch {}
+    }, 500);
+    return () => clearTimeout(t);
+  }, [inputs]);
   const [results, setResults] = useState(null);
   const [coastResult, setCoastResult] = useState(null);
   const [coastYearResult, setCoastYearResult] = useState(null);
@@ -85,54 +101,6 @@ export function useSimulation() {
   const effectiveParams = useMemo(
     () => ({ ...inputs.investmentParams, kneeYear: effectiveKneeYear }),
     [inputs.investmentParams, effectiveKneeYear]
-  );
-
-  // ── Reactive: yield curve ─────────────────────────────────────
-  const yieldCurveData = useMemo(
-    () => getYieldCurve(totalYears, effectiveParams).map(d => ({
-      ...d,
-      age: primaryAge + d.year,
-      meanPct: d.mean * 100,
-      volPct: d.volatility * 100,
-      upperBound: (d.mean + d.volatility) * 100,
-      lowerBound: (d.mean - d.volatility) * 100,
-      bandBase: (d.mean - d.volatility) * 100,
-      bandWidth: d.volatility * 2 * 100,
-    })),
-    [totalYears, effectiveParams, primaryAge]
-  );
-
-  // ── Reactive: deterministic coast ─────────────────────────────
-  const deterministicCoastData = useMemo(() => {
-    const pensions = buildAllPensions(inputs.earners, []);
-    return calculateDeterministicCoast({
-      primaryCurrentAge: primaryAge,
-      retirementAge: inputs.retirementAge,
-      deathAge: deathAge,
-      startingPortfolio: totalPortfolio,
-      earners: inputs.earners,
-      expenses: inputs.expenses,
-      pensions,
-      investmentParams: effectiveParams,
-      inflationParams: inputs.inflationParams,
-      effectiveTaxRate: inputs.effectiveTaxRate,
-    });
-  }, [inputs.earners, inputs.expenses, inputs.retirementAge, deathAge,
-      effectiveParams, inputs.inflationParams, inputs.effectiveTaxRate,
-      primaryAge, totalPortfolio]);
-
-  // ── Reactive: spending projection ─────────────────────────────
-  const spendingProjectionData = useMemo(
-    () => calculateSpendingProjection({
-      primaryCurrentAge: primaryAge,
-      retirementAge: inputs.retirementAge,
-      deathAge: deathAge,
-      expenses: inputs.expenses,
-      inflationParams: inputs.inflationParams,
-      effectiveTaxRate: inputs.effectiveTaxRate,
-    }),
-    [primaryAge, inputs.retirementAge, deathAge,
-     inputs.expenses, inputs.inflationParams, inputs.effectiveTaxRate]
   );
 
   // ── Updaters ──────────────────────────────────────────────────
@@ -174,15 +142,18 @@ export function useSimulation() {
     setInputs(prev => {
       const n = prev.earners.length;
       const primary = prev.earners[0];
-      const yearsToRetire = prev.retirementAge - (primary?.currentAge ?? 30);
+      const primaryAge = primary?.currentAge ?? 30;
       const newEarners = [
         ...prev.earners,
         {
           ...DEFAULT_EARNER,
           name: EARNER_NAMES[n] || `Partner ${n + 1}`,
-          currentAge: 30,
-          retirementAge: 30 + yearsToRetire,
-          deathAge: 95,
+          currentAge: primaryAge,
+          retirementAge: primary?.retirementAge ?? 65,
+          deathAge: primary?.deathAge ?? 95,
+          portfolio: 0,
+          salary: 0,
+          savingsRate: 0,
         },
       ];
       const newExpenses = buildExpensesForLocation(prev.colMultiplier, newEarners.length);
@@ -419,9 +390,6 @@ export function useSimulation() {
     coastResult,
     coastYearResult,
     perEarnerCoast,
-    yieldCurveData,
-    deterministicCoastData,
-    spendingProjectionData,
     totalPortfolio,
     primaryAge,
     deathAge,

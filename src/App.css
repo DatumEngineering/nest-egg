@@ -6,17 +6,22 @@
 :root {
   --color-bg: #f5f5f5;
   --color-surface: #ffffff;
-  --color-primary: #1565c0;
-  --color-primary-light: #e3f2fd;
-  --color-primary-dark: #0d47a1;
-  --color-success: #2e7d32;
-  --color-success-bg: #e8f5e9;
+  --color-surface-2: #f0f4f8;
+  --color-primary: #1d4ed8;
+  --color-primary-light: #dbeafe;
+  --color-primary-dark: #1e40af;
+  --color-success: #16a34a;
+  --color-success-bg: #dcfce7;
   --color-failure: #c62828;
   --color-failure-bg: #ffebee;
   --color-warning: #ef6c00;
   --color-text: #212121;
   --color-text-secondary: #616161;
   --color-border: #e0e0e0;
+  --color-tooltip-bg: #1a2332;
+  --color-tooltip-text: #e8ecf1;
+  --color-disclaimer-bg: #fff8e1;
+  --color-disclaimer-text: #6d4c00;
   --radius: 8px;
   --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
 }
@@ -108,24 +113,18 @@ body {
   border-color: var(--color-primary);
 }
 
-/* ── Privacy Banner ─────────────────────────────────────── */
+/* ── Footer ──────────────────────────────────────────────── */
 
-.privacy-banner {
+.app-footer {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  margin-bottom: 0.75rem;
-  background: var(--color-success-bg);
-  border: 1px solid var(--color-success);
-  border-radius: var(--radius);
-  color: var(--color-success);
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.privacy-banner svg {
-  flex-shrink: 0;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1rem 0.75rem 0.75rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
 }
 
 /* ── Info Icon ────────────────────────────────────────────── */
@@ -133,15 +132,22 @@ body {
 .info-icon {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 9px;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1;
   margin-left: 0.35rem;
   color: var(--color-text-secondary);
   cursor: help;
   vertical-align: middle;
   position: relative;
-}
-
-.info-icon svg {
-  pointer-events: none;
+  flex-shrink: 0;
+  user-select: none;
 }
 
 .info-icon:hover {
@@ -154,11 +160,12 @@ body {
   left: 50%;
   top: calc(100% + 8px);
   transform: translateX(-50%);
-  background: #1a2332;
-  color: #e8ecf1;
+  background: var(--color-tooltip-bg);
+  color: var(--color-tooltip-text);
   padding: 0.6rem 0.75rem;
   border-radius: 6px;
   font-size: 0.78rem;
+  font-style: normal;
   font-weight: 400;
   line-height: 1.45;
   width: max-content;
@@ -176,7 +183,7 @@ body {
   top: calc(100% + 2px);
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-bottom-color: #1a2332;
+  border-bottom-color: var(--color-tooltip-bg);
   z-index: 200;
   pointer-events: none;
 }
@@ -272,10 +279,10 @@ body {
 .about-disclaimer {
   margin-top: 1rem;
   padding: 0.5rem 0.75rem;
-  background: #fff8e1;
+  background: var(--color-disclaimer-bg);
   border-radius: 4px;
   font-size: 0.8rem;
-  color: #6d4c00;
+  color: var(--color-disclaimer-text);
   font-style: italic;
 }
 
@@ -322,9 +329,21 @@ legend {
   gap: 0.5rem;
 }
 
+/* Earner fields: 3-col grid so short fields (age, %) stay narrow,
+   dollar fields span 2 cols to signal they're wider values */
+.form-grid-earner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
 @media (max-width: 500px) {
-  .form-grid {
+  .form-grid,
+  .form-grid-earner {
     grid-template-columns: 1fr;
+  }
+  .form-grid-earner label[style] {
+    grid-column: unset !important;
   }
 }
 
@@ -657,6 +676,7 @@ summary {
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--color-text);
+  font-family: 'JetBrains Mono', 'Fira Mono', ui-monospace, monospace;
 }
 
 .inflation-input {
@@ -701,8 +721,9 @@ summary {
 .risk-preset-buttons {
   display: flex;
   gap: 0;
-  border-radius: var(--radius);
+  border-radius: 999px;
   border: 1px solid var(--color-primary);
+  overflow: hidden;
 }
 
 .risk-preset-btn {
@@ -726,11 +747,11 @@ summary {
 }
 
 .risk-preset-btn:first-child {
-  border-radius: var(--radius) 0 0 var(--radius);
+  border-radius: 999px 0 0 999px;
 }
 
 .risk-preset-btn:last-child {
-  border-radius: 0 var(--radius) var(--radius) 0;
+  border-radius: 0 999px 999px 0;
 }
 
 .risk-preset-btn.active {
@@ -878,6 +899,7 @@ summary {
   font-size: 1.8rem;
   font-weight: 700;
   line-height: 1.1;
+  font-family: 'JetBrains Mono', 'Fira Mono', ui-monospace, monospace;
 }
 
 .success-card.success .big-number {
@@ -936,11 +958,11 @@ summary {
   padding: 0.75rem;
   text-align: center;
   box-shadow: var(--shadow);
-  border: 2px solid #7b1fa2;
+  border: 2px solid var(--color-primary);
 }
 
 .coast-year-card .big-number {
-  color: #7b1fa2;
+  color: var(--color-primary);
 }
 
 .coast-year-card .big-number.coast-success {
@@ -1053,34 +1075,6 @@ summary {
   font-size: 0.85rem;
 }
 
-/* ── Chart Toggles ───────────────────────────────────────── */
-
-.chart-toggles {
-  display: flex;
-  gap: 0.35rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.5rem;
-}
-
-.toggle-btn {
-  padding: 0.3rem 0.75rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  background: var(--color-surface);
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius);
-  cursor: pointer;
-}
-
-.toggle-btn:hover {
-  background: var(--color-primary-light);
-}
-
-.toggle-btn.active {
-  background: var(--color-primary);
-  color: white;
-}
 
 /* ── Simulation Error ────────────────────────────────────── */
 
@@ -1221,7 +1215,6 @@ summary {
     padding: 0.75rem 1.25rem;
   }
 
-  .toggle-btn,
   .zoom-btn {
     min-height: 44px;
     padding: 0.45rem 0.75rem;
@@ -1304,14 +1297,6 @@ summary {
     width: 55px !important;
   }
 
-  /* Chart toggles — smaller text so all fit in one row */
-  .toggle-btn {
-    flex: 1 1 auto;
-    font-size: 0.75rem;
-    padding: 0.45rem 0.4rem;
-    text-align: center;
-  }
-
   /* Results cards — smaller min so 2 cards fit per row */
   .results-summary {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -1330,9 +1315,4 @@ summary {
     font-size: 0.85rem;
   }
 
-  /* Privacy banner — smaller */
-  .privacy-banner {
-    font-size: 0.75rem;
-    padding: 0.35rem 0.5rem;
-  }
 }

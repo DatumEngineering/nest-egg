@@ -11,7 +11,7 @@ const fmt = (n) =>
   n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
 const InfoIcon = ({ tip }) => (
-  <span className="info-icon" data-tip={tip}>ⓘ</span>
+  <span className="info-icon" data-tip={tip}>i</span>
 );
 
 function SpendingPromptHelper({ inputs }) {

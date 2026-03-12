@@ -109,7 +109,7 @@ function FERSInputs({ earner, updateField }) {
             onChange={(e) => updateFERS('survivorBenefitElected', e.target.checked)}
           />
           Survivor benefit elected
-          <span className="info-icon" data-tip="Reduces your FERS annuity by 10% during your lifetime. After your death, your spouse receives 50% of your full (unreduced) annuity.">ⓘ</span>
+          <span className="info-icon" data-tip="Reduces your FERS annuity by 10% during your lifetime. After your death, your spouse receives 50% of your full (unreduced) annuity.">i</span>
         </label>
       )}
 
@@ -279,7 +279,7 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
     <fieldset className="step-fieldset">
       <legend>
         Step 1: Who's Planning?
-        <span className="info-icon" data-tip="Add each earner in your household. Set their age, salary, savings rate, and any pensions (FERS, Social Security, etc.). Portfolio values are combined for the simulation.">ⓘ</span>
+        <span className="info-icon" data-tip="Add each earner in your household. Set their age, salary, savings rate, and any pensions (FERS, Social Security, etc.). Portfolio values are combined for the simulation.">i</span>
       </legend>
 
       <div className="household-summary">
@@ -333,7 +333,7 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
               )}
             </div>
 
-            <div className="form-grid">
+            <div className="form-grid-earner">
               <label>
                 Age
                 <NumericInput
@@ -342,7 +342,7 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
                   min={18} max={80}
                 />
               </label>
-              <label>
+              <label style={{ gridColumn: 'span 2' }}>
                 Portfolio
                 <NumericInput
                   value={earner.portfolio}
@@ -350,7 +350,7 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
                   step={5000} min={0}
                 />
               </label>
-              <label>
+              <label style={{ gridColumn: 'span 2' }}>
                 Annual Income
                 <NumericInput
                   value={earner.salary}

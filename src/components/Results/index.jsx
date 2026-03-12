@@ -1,9 +1,5 @@
-import { useState } from 'react';
 import SuccessRate from './SuccessRate.jsx';
 import PortfolioChart from './PortfolioChart.jsx';
-import CoastCurveChart from './CoastCurveChart.jsx';
-import YieldCurveChart from './YieldCurveChart.jsx';
-import SpendingChart from './SpendingChart.jsx';
 import WhatIfButtons from './WhatIfButtons.jsx';
 
 export default function Results({
@@ -11,12 +7,7 @@ export default function Results({
   coastResult,
   coastYearResult,
   perEarnerCoast,
-  yieldCurveData,
-  deterministicCoastData,
-  spendingProjectionData,
   inputs,
-  totalPortfolio,
-  primaryAge,
   error,
   whatIfResult,
   whatIfLabel,
@@ -24,62 +15,8 @@ export default function Results({
   clearWhatIf,
   isRunning,
 }) {
-  const [showYieldCurve, setShowYieldCurve] = useState(false);
-  const [showCoastCurve, setShowCoastCurve] = useState(false);
-  const [showSpending, setShowSpending] = useState(false);
-
-  const hasDerisking = (inputs.investmentParams?.deriskYears ?? 20) > 0;
-
   return (
     <div className="results">
-      {/* Unified chart toggle bar */}
-      <div className="chart-toggles">
-        {hasDerisking && (
-          <button
-            type="button"
-            className={`toggle-btn${showYieldCurve ? ' active' : ''}`}
-            onClick={() => setShowYieldCurve(!showYieldCurve)}
-          >
-            Glide Path
-          </button>
-        )}
-        <button
-          type="button"
-          className={`toggle-btn${showCoastCurve ? ' active' : ''}`}
-          onClick={() => setShowCoastCurve(!showCoastCurve)}
-        >
-          Coast Number
-        </button>
-        <button
-          type="button"
-          className={`toggle-btn${showSpending ? ' active' : ''}`}
-          onClick={() => setShowSpending(!showSpending)}
-        >
-          Spending
-        </button>
-      </div>
-
-      {showYieldCurve && hasDerisking && (
-        <YieldCurveChart curveData={yieldCurveData} />
-      )}
-
-      {showCoastCurve && (
-        <CoastCurveChart
-          coastCurve={deterministicCoastData}
-          currentPortfolio={totalPortfolio}
-          currentAge={primaryAge}
-          title="What You Need to Coast"
-          hint="Portfolio needed at each age to coast to retirement. Where the blue line crosses the green curve, you can stop contributing."
-        />
-      )}
-
-      {showSpending && (
-        <SpendingChart
-          spendingData={spendingProjectionData}
-          effectiveTaxRate={inputs.effectiveTaxRate}
-        />
-      )}
-
       {/* Error display */}
       {error && (
         <div className="simulation-error">
@@ -112,7 +49,7 @@ export default function Results({
             runWhatIf={runWhatIf}
             clearWhatIf={clearWhatIf}
             isRunning={isRunning}
-            primaryAge={primaryAge}
+            primaryAge={inputs.earners[0]?.currentAge ?? 30}
           />
         </>
       )}

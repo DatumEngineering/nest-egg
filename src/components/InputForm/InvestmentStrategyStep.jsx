@@ -3,7 +3,7 @@ import { BEFORE_PRESETS, AFTER_PRESETS } from '../../engine/investment.js';
 import NumericInput from './NumericInput.jsx';
 
 const InfoIcon = ({ tip }) => (
-  <span className="info-icon" data-tip={tip}>ⓘ</span>
+  <span className="info-icon" data-tip={tip}>i</span>
 );
 
 function detectBeforePreset(params) {

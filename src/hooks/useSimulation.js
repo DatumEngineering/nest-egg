@@ -1,9 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import {
   runMonteCarlo, calculateCoastNumber, calculateCoastYear,
-  calculateDeterministicCoast, calculateSpendingProjection,
   buildAllPensions, buildExpensesForLocation, buildInvestmentParams,
-  getYieldCurve,
 } from '../engine/index.js';
 import { DEFAULT_CATEGORIES } from '../engine/expenses.js';
 
@@ -85,54 +83,6 @@ export function useSimulation() {
   const effectiveParams = useMemo(
     () => ({ ...inputs.investmentParams, kneeYear: effectiveKneeYear }),
     [inputs.investmentParams, effectiveKneeYear]
-  );
-
-  // ── Reactive: yield curve ─────────────────────────────────────
-  const yieldCurveData = useMemo(
-    () => getYieldCurve(totalYears, effectiveParams).map(d => ({
-      ...d,
-      age: primaryAge + d.year,
-      meanPct: d.mean * 100,
-      volPct: d.volatility * 100,
-      upperBound: (d.mean + d.volatility) * 100,
-      lowerBound: (d.mean - d.volatility) * 100,
-      bandBase: (d.mean - d.volatility) * 100,
-      bandWidth: d.volatility * 2 * 100,
-    })),
-    [totalYears, effectiveParams, primaryAge]
-  );
-
-  // ── Reactive: deterministic coast ─────────────────────────────
-  const deterministicCoastData = useMemo(() => {
-    const pensions = buildAllPensions(inputs.earners, []);
-    return calculateDeterministicCoast({
-      primaryCurrentAge: primaryAge,
-      retirementAge: inputs.retirementAge,
-      deathAge: deathAge,
-      startingPortfolio: totalPortfolio,
-      earners: inputs.earners,
-      expenses: inputs.expenses,
-      pensions,
-      investmentParams: effectiveParams,
-      inflationParams: inputs.inflationParams,
-      effectiveTaxRate: inputs.effectiveTaxRate,
-    });
-  }, [inputs.earners, inputs.expenses, inputs.retirementAge, deathAge,
-      effectiveParams, inputs.inflationParams, inputs.effectiveTaxRate,
-      primaryAge, totalPortfolio]);
-
-  // ── Reactive: spending projection ─────────────────────────────
-  const spendingProjectionData = useMemo(
-    () => calculateSpendingProjection({
-      primaryCurrentAge: primaryAge,
-      retirementAge: inputs.retirementAge,
-      deathAge: deathAge,
-      expenses: inputs.expenses,
-      inflationParams: inputs.inflationParams,
-      effectiveTaxRate: inputs.effectiveTaxRate,
-    }),
-    [primaryAge, inputs.retirementAge, deathAge,
-     inputs.expenses, inputs.inflationParams, inputs.effectiveTaxRate]
   );
 
   // ── Updaters ──────────────────────────────────────────────────
@@ -419,9 +369,6 @@ export function useSimulation() {
     coastResult,
     coastYearResult,
     perEarnerCoast,
-    yieldCurveData,
-    deterministicCoastData,
-    spendingProjectionData,
     totalPortfolio,
     primaryAge,
     deathAge,

@@ -109,7 +109,7 @@ function FERSInputs({ earner, updateField }) {
             onChange={(e) => updateFERS('survivorBenefitElected', e.target.checked)}
           />
           Survivor benefit elected
-          <span className="info-icon" data-tip="Reduces your FERS annuity by 10% during your lifetime. After your death, your spouse receives 50% of your full (unreduced) annuity.">ⓘ</span>
+          <span className="info-icon" data-tip="Reduces your FERS annuity by 10% during your lifetime. After your death, your spouse receives 50% of your full (unreduced) annuity.">i</span>
         </label>
       )}
 
@@ -279,7 +279,7 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
     <fieldset className="step-fieldset">
       <legend>
         Step 1: Who's Planning?
-        <span className="info-icon" data-tip="Add each earner in your household. Set their age, salary, savings rate, and any pensions (FERS, Social Security, etc.). Portfolio values are combined for the simulation.">ⓘ</span>
+        <span className="info-icon" data-tip="Add each earner in your household. Set their age, salary, savings rate, and any pensions (FERS, Social Security, etc.). Portfolio values are combined for the simulation.">i</span>
       </legend>
 
       <div className="household-summary">

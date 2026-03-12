@@ -3,7 +3,7 @@ import RentalProperties from './RentalProperties.jsx';
 import PrimaryResidence from './PrimaryResidence.jsx';
 
 const InfoIcon = ({ tip }) => (
-  <span className="info-icon" data-tip={tip}>ⓘ</span>
+  <span className="info-icon" data-tip={tip}>i</span>
 );
 
 export default function AssetsEventsStep({

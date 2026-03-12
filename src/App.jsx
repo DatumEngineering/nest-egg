@@ -30,9 +30,6 @@ function App() {
     coastResult,
     coastYearResult,
     perEarnerCoast,
-    yieldCurveData,
-    deterministicCoastData,
-    spendingProjectionData,
     totalPortfolio,
     primaryAge,
     deathAge,
@@ -160,12 +157,7 @@ function App() {
             coastResult={coastResult}
             coastYearResult={coastYearResult}
             perEarnerCoast={perEarnerCoast}
-            yieldCurveData={yieldCurveData}
-            deterministicCoastData={deterministicCoastData}
-            spendingProjectionData={spendingProjectionData}
             inputs={inputs}
-            totalPortfolio={totalPortfolio}
-            primaryAge={primaryAge}
             error={error}
             whatIfResult={whatIfResult}
             whatIfLabel={whatIfLabel}

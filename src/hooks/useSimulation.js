@@ -12,7 +12,7 @@ export const DEFAULT_EARNER = {
   deathAge: 95,
   portfolio: 50000,
   salary: 75000,
-  savingsRate: 0.20,
+  contributionPeriods: [{ fromAge: 30, rate: 0.20 }],
   wageGrowthRate: 0.03,
   fers: null,
   socialSecurity: null,
@@ -60,10 +60,23 @@ export const DEFAULT_INPUTS = {
 
 const LS_KEY = 'nestegg_inputs';
 
+function migrateEarner(earner) {
+  if (!earner.contributionPeriods) {
+    const rate = earner.savingsRate ?? 0.20;
+    return { ...earner, contributionPeriods: [{ fromAge: earner.currentAge ?? 30, rate }] };
+  }
+  return earner;
+}
+
 function loadSavedInputs() {
   try {
     const saved = localStorage.getItem(LS_KEY);
-    return saved ? JSON.parse(saved) : DEFAULT_INPUTS;
+    if (!saved) return DEFAULT_INPUTS;
+    const parsed = JSON.parse(saved);
+    if (parsed.earners) {
+      parsed.earners = parsed.earners.map(migrateEarner);
+    }
+    return parsed;
   } catch {
     return DEFAULT_INPUTS;
   }
@@ -153,7 +166,7 @@ export function useSimulation() {
           deathAge: primary?.deathAge ?? 95,
           portfolio: 0,
           salary: 0,
-          savingsRate: 0,
+          contributionPeriods: [{ fromAge: primaryAge, rate: 0 }],
         },
       ];
       const newExpenses = buildExpensesForLocation(prev.colMultiplier, newEarners.length);

@@ -43,6 +43,17 @@ import { INFLATION_DEFAULTS } from './inflation.js';
 import { getPensionIncome } from './pensions.js';
 import { bivariateNormal, normalRandom } from './random.js';
 
+function getContributionRate(earner, earnerAge) {
+  const periods = earner.contributionPeriods;
+  if (!periods || periods.length === 0) return earner.savingsRate ?? 0.20;
+  let rate = periods[0].rate;
+  for (const p of periods) {
+    if (p.fromAge <= earnerAge) rate = p.rate;
+    else break;
+  }
+  return rate;
+}
+
 /**
  * Run a single simulation path.
  */
@@ -270,8 +281,9 @@ export function runSimulation(config) {
         // Transitional: full working income available to offset expenses
         workingIncome += projectedSalary;
       } else {
-        // Pure accumulation: contribute savings portion
-        totalContribution += projectedSalary * (earner.savingsRate ?? 0.20);
+        // Pure accumulation: contribute savings portion for this age
+        const contributionRate = getContributionRate(earner, earnerAge);
+        totalContribution += projectedSalary * contributionRate;
       }
     }
 

@@ -17,9 +17,9 @@ export default function WhatIfButtons({
 
   const retirementYears = inputs.retirementAge - primaryAge;
 
-  // Monthly dollar change from ±10% of current savings
+  // Monthly dollar change from ±10% of current savings (use first period = current rate)
   const monthlySavingsDelta = inputs.earners.reduce(
-    (sum, e) => sum + (e.salary * e.savingsRate * 0.10) / 12,
+    (sum, e) => sum + (e.salary * (e.contributionPeriods?.[0]?.rate ?? e.savingsRate ?? 0) * 0.10) / 12,
     0
   );
 
@@ -42,7 +42,9 @@ export default function WhatIfButtons({
       {
         earners: inputs.earners.map((e) => ({
           ...e,
-          savingsRate: Math.min(1.0, e.savingsRate * 1.10),
+          contributionPeriods: (e.contributionPeriods ?? [{ fromAge: e.currentAge, rate: e.savingsRate ?? 0 }]).map(
+            (p) => ({ ...p, rate: Math.min(1.0, p.rate * 1.10) })
+          ),
         })),
       },
       `Save 10% more (~+${fmt(monthlySavingsDelta)}/mo)`
@@ -54,7 +56,9 @@ export default function WhatIfButtons({
       {
         earners: inputs.earners.map((e) => ({
           ...e,
-          savingsRate: e.savingsRate * 0.90,
+          contributionPeriods: (e.contributionPeriods ?? [{ fromAge: e.currentAge, rate: e.savingsRate ?? 0 }]).map(
+            (p) => ({ ...p, rate: p.rate * 0.90 })
+          ),
         })),
       },
       `Save 10% less (~-${fmt(monthlySavingsDelta)}/mo)`

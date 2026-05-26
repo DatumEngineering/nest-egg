@@ -1,6 +1,7 @@
 import { calculateFERS, calculateDeferredFERS, calculateSocialSecurity } from '../../engine/pensions.js';
 import { estimateMonthlyPIA } from '../../engine/socialSecurity.js';
 import NumericInput from './NumericInput.jsx';
+import ContributionPeriods from './ContributionPeriods.jsx';
 
 const fmt = (n) =>
   n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
@@ -359,15 +360,6 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
                 />
               </label>
               <label>
-                Savings Rate (%)
-                <NumericInput
-                  value={(earner.savingsRate * 100).toFixed(0)}
-                  onChange={(e) => updateField('savingsRate', Number(e.target.value) / 100)}
-                  min={0} max={100} step={5}
-                />
-                <span className="hint">Saving {fmt(earner.salary * earner.savingsRate)}/yr</span>
-              </label>
-              <label>
                 Retirement Age
                 <NumericInput
                   value={earner.retirementAge}
@@ -384,6 +376,13 @@ export default function HouseholdStep({ inputs, updateEarner, addEarner, removeE
                 />
               </label>
             </div>
+            <ContributionPeriods
+              periods={earner.contributionPeriods ?? [{ fromAge: earner.currentAge, rate: earner.savingsRate ?? 0.20 }]}
+              salary={earner.salary}
+              currentAge={earner.currentAge}
+              retirementAge={earner.retirementAge}
+              onChange={(periods) => updateField('contributionPeriods', periods)}
+            />
 
             <details className="earner-advanced">
               <summary>Advanced: Growth, Pensions & Benefits</summary>

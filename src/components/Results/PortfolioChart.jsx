@@ -132,7 +132,6 @@ export default function PortfolioChart({ percentileBands, whatIfBands, retiremen
             tickFormatter={fmt}
             domain={yDomain}
             allowDataOverflow={zoom !== 'full'}
-            label={{ value: 'Portfolio Value', angle: -90, position: 'insideLeft', offset: 10 }}
           />
           <Tooltip content={customTooltip} />
 
@@ -167,7 +166,7 @@ export default function PortfolioChart({ percentileBands, whatIfBands, retiremen
             x={retirementAge}
             stroke="#e53935"
             strokeDasharray="3 3"
-            label={{ value: 'Retirement', position: 'top', fill: '#e53935' }}
+            label={{ value: 'Retirement', position: 'insideTop', dx: 5, fill: '#e53935', fontSize: 11 }}
           />
         </ComposedChart>
       </ResponsiveContainer>

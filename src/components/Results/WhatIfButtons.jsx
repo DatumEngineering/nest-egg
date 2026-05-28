@@ -30,10 +30,9 @@ export default function WhatIfButtons({
   );
 
   const handleCrash = () => {
-    const year = Math.max(0, retirementYears - 2);
     runWhatIf(
-      { _simOverrides: { stressShockEnabled: true, stressShockYear: year, stressShockMagnitude: -0.50 } },
-      '50% market crash 2 yrs before retirement'
+      { _simOverrides: { stressShockEnabled: true, stressShockYear: retirementYears, stressShockMagnitude: -0.50 } },
+      '50% crash at retirement'
     );
   };
 
@@ -101,7 +100,7 @@ export default function WhatIfButtons({
           onClick={handleCrash}
           disabled={isRunning}
         >
-          50% crash 2 yrs before retirement
+          50% crash at retirement
         </button>
         <button
           type="button"
